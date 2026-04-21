@@ -1253,31 +1253,31 @@ display:none !important;
 .navbar .container{
 display:flex !important;
 align-items:center;
+justify-content:flex-end !important;
 }
 
+/* make logo smaller on phone */
 .navbar-brand{
+font-size:20px !important;
 margin-right:auto !important;
 }
 
-/* REMOVE absolute positioning */
+/* push menu to right */
 .navbar-toggler{
-position:static !important;
-transform:none !important;
 margin-left:auto !important;
-margin-right:8px !important;
-display:block !important;
+margin-right:6px !important;
+position:relative !important;
+left:auto !important;
+right:auto !important;
 }
 
-/* Cart immediately right of menu */
+/* cart stays at far right */
 .mobile-cart{
-position:static !important;
-transform:none !important;
 display:inline-flex !important;
-align-items:center;
 margin-left:0 !important;
 }
 
-/* Hide duplicate menu if exists */
+/* remove duplicate menu if any */
 button.navbar-toggler:nth-of-type(2){
 display:none !important;
 }
