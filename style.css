@@ -1238,12 +1238,17 @@ a {
   }
 }
 
-/* Desktop + tablet hide mobile cart */
+//* =========================
+   MOBILE CART FINAL FIX
+========================= */
+
+/* Hide mobile cart on desktop/tablet */
 @media (min-width:769px){
 .mobile-cart{
 display:none !important;
 }
 }
+
 
 /* Mobile only */
 @media (max-width:768px){
@@ -1252,36 +1257,46 @@ display:none !important;
 position:relative;
 display:flex !important;
 align-items:center;
+min-height:56px;
 }
 
+/* Logo left */
 .navbar-brand{
 margin-right:auto;
 }
 
-/* Hamburger */
+/* Hamburger (3 line) */
 .navbar-toggler{
-position:absolute;
-right:92px;
+position:absolute !important;
+right:92px !important;
 top:50%;
 transform:translateY(-50%);
 display:block !important;
+z-index:9998;
 }
 
-/* Hide accidental second toggler */
+/* Hide accidental duplicate menu icon */
 button.navbar-toggler:nth-of-type(2){
 display:none !important;
 }
 
-/* Cart pinned OUTSIDE menu */
+/* Cart button separate, RIGHT of menu */
 .mobile-cart{
 position:absolute !important;
-right:10px;
+right:10px !important;
 top:50%;
 transform:translateY(-50%);
 display:inline-flex !important;
 align-items:center;
-z-index:9999;
+justify-content:center;
 margin:0 !important;
+padding:6px 10px;
+z-index:9999;
+}
+
+/* Prevent collapse menu affecting cart */
+#menu{
+position:static !important;
 }
 
 }
