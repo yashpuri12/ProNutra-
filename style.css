@@ -1237,3 +1237,27 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* MOBILE ONLY FIX - desktop unchanged */
+@media (max-width: 768px){
+
+.mobile-cart{
+display:inline-flex !important;
+align-items:center;
+gap:6px;
+padding:8px 12px;
+font-size:14px;
+margin-left:auto;
+margin-right:12px;
+border-radius:30px;
+}
+
+.navbar .container{
+position:relative;
+}
+
+.navbar-toggler{
+margin-left:0;
+}
+
+}
