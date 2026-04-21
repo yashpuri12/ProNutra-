@@ -1267,7 +1267,7 @@ transform:translateY(-50%);
 /* menu pinned right */
 .navbar-toggler{
 position:absolute !important;
-right:30px !important;
+right:64px !important;
 top:50%;
 transform:translateY(-50%);
 margin:0 !important;
