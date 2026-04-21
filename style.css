@@ -1238,43 +1238,24 @@ a {
   }
 }
 
-/* MOBILE ONLY FIX - desktop unchanged */
-@media (max-width: 768px){
-
-.mobile-cart{
-display:inline-flex !important;
-align-items:center;
-gap:6px;
-padding:8px 12px;
-font-size:14px;
-margin-left:auto;
-margin-right:12px;
-border-radius:30px;
-}
-
-.navbar .container{
-position:relative;
-}
-
-.navbar-toggler{
-margin-left:0;
-}
-
-}
-/* ALWAYS hide mobile cart on desktop */
+/* Desktop + tablet hide */
+@media (min-width:769px){
 .mobile-cart{
 display:none !important;
+visibility:hidden !important;
+width:0 !important;
+overflow:hidden !important;
+margin:0 !important;
+padding:0 !important;
+}
 }
 
-/* Only show on phones */
+/* Only mobile show */
 @media (max-width:768px){
-
 .mobile-cart{
 display:inline-flex !important;
 align-items:center;
-gap:6px;
 margin-left:auto;
 margin-right:10px;
 }
-
 }
