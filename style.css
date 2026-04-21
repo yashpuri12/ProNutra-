@@ -1238,9 +1238,7 @@ a {
   }
 }
 
-//* =========================
-   MOBILE CART FINAL FIX
-========================= */
+
 
 /* Hide mobile cart on desktop/tablet */
 @media (min-width:769px){
@@ -1260,43 +1258,27 @@ align-items:center;
 min-height:56px;
 }
 
-/* Logo left */
 .navbar-brand{
 margin-right:auto;
 }
 
-/* Hamburger (3 line) */
+/* FIXED: move menu to right */
 .navbar-toggler{
 position:absolute !important;
-right:92px !important;
+right:70px !important;   /* was 92px */
 top:50%;
 transform:translateY(-50%);
-display:block !important;
 z-index:9998;
 }
 
-/* Hide accidental duplicate menu icon */
-button.navbar-toggler:nth-of-type(2){
-display:none !important;
-}
-
-/* Cart button separate, RIGHT of menu */
+/* Cart at far right */
 .mobile-cart{
 position:absolute !important;
 right:10px !important;
 top:50%;
 transform:translateY(-50%);
-display:inline-flex !important;
-align-items:center;
-justify-content:center;
-margin:0 !important;
-padding:6px 10px;
 z-index:9999;
-}
-
-/* Prevent collapse menu affecting cart */
-#menu{
-position:static !important;
+display:inline-flex !important;
 }
 
 }
