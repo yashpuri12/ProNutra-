@@ -1238,44 +1238,26 @@ a {
   }
 }
 
-@media (max-width:768px){
+/* MOBILE ONLY FIX - desktop unchanged */
+@media (max-width: 768px){
 
-/* mobile navbar container */
-.navbar .container{
-display:flex;
-align-items:center;
-}
-
-/* logo left */
-.navbar-brand{
-margin-right:auto;
-}
-
-/* cart right side */
 .mobile-cart{
 display:inline-flex !important;
 align-items:center;
 gap:6px;
 padding:8px 12px;
 font-size:14px;
-border-radius:30px;
-
 margin-left:auto;
-margin-right:10px; /* cart aur 3-line ke beech gap */
+margin-right:12px;
+border-radius:30px;
 }
 
-/* hamburger extreme right */
+.navbar .container{
+position:relative;
+}
+
 .navbar-toggler{
 margin-left:0;
-order:3;
-}
-
-.mobile-cart{
-order:2;
-}
-
-.navbar-brand{
-order:1;
 }
 
 }
