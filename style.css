@@ -1265,7 +1265,7 @@ margin-right:auto;
 /* FIXED: move menu to right */
 .navbar-toggler{
 position:absolute !important;
-right:70px !important;   /* was 92px */
+right:40px !important;   /* was 92px */
 top:50%;
 transform:translateY(-50%);
 z-index:9998;
