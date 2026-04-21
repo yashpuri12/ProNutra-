@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protein Supplements, Nutrition Diet & Wellness Products | ProNutra</title>
+  <meta name="description" content="Browse ProNutra whey protein, plant protein, creatine, omega-3, multivitamins, healthy fitness products, and balanced nutrition diet plans.">
+  <meta name="keywords" content="protein supplements, nutrition diet, healthy fitness, high protein diet, whey protein, plant protein, creatine, wellness capsules">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="products">
+  <header class="site-header compact">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html"><span>Pro</span>Nutra</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="menu">
+          <ul class="navbar-nav ms-auto align-items-lg-center">
+            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+            <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="page-title">
+      <div class="container">
+        <p class="eyebrow">ProNutra Catalog</p>
+        <h1>Protein, nutrition diet, and wellness products</h1>
+        <p>Shop premium supplements and healthy fitness essentials for strength, recovery, and balanced living.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="section-pad product-band">
+    <div class="container">
+      <div class="catalog-toolbar">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input class="form-control" type="search" id="productSearch" placeholder="Search protein, creatine, omega, diet...">
+        </div>
+        <div class="filter-pills" id="categoryFilters">
+          <button class="active" data-filter="all">All</button>
+          <button data-filter="protein">Protein</button>
+          <button data-filter="performance">Performance</button>
+          <button data-filter="wellness">Wellness</button>
+          <button data-filter="foods">Foods</button>
+          <button data-filter="plans">Plans</button>
+          <button data-filter="equipment">Equipment</button>
+          <button data-filter="diet">Diet</button>
+        </div>
+      </div>
+      <div class="row g-4" id="productGrid"></div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content product-modal">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalTitle">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="productModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastArea" class="toast-area"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
