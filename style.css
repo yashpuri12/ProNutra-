@@ -1267,7 +1267,7 @@ transform:translateY(-50%);
 /* menu pinned right */
 .navbar-toggler{
 position:absolute !important;
-right:64px !important;
+right:88px !important;
 top:50%;
 transform:translateY(-50%);
 margin:0 !important;
@@ -1276,7 +1276,7 @@ margin:0 !important;
 /* cart pinned far right */
 .mobile-cart{
 position:absolute !important;
-right:8px !important;
+right:10px !important;
 top:50%;
 transform:translateY(-50%);
 display:inline-flex !important;
