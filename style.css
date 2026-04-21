@@ -1251,41 +1251,30 @@ display:none !important;
 @media (max-width:768px){
 
 .navbar .container{
-position:relative !important;
-display:block !important;
+position:relative;
 min-height:56px;
 }
 
-/* logo left */
 .navbar-brand{
-position:absolute !important;
+position:absolute;
 left:12px;
 top:50%;
 transform:translateY(-50%);
 }
 
-/* menu pinned right */
 .navbar-toggler{
-position:absolute !important;
-right:88px !important;
+position:absolute;
+right:82px;
 top:50%;
 transform:translateY(-50%);
-margin:0 !important;
 }
 
-/* cart pinned far right */
 .mobile-cart{
-position:absolute !important;
-right:10px !important;
+position:absolute;
+right:10px;
 top:50%;
 transform:translateY(-50%);
 display:inline-flex !important;
-margin:0 !important;
-}
-
-/* hide duplicate menu */
-button.navbar-toggler:nth-of-type(2){
-display:none !important;
 }
 
 }
