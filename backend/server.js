@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(cors());
@@ -17,8 +19,101 @@ const pool = mysql.createPool({
   connectionLimit: 10
 });
 
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+
+function signToken(user) {
+  return jwt.sign({ userId: user.id, email: user.email, name: user.full_name }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+async function getUserCart(connection, userId) {
+  const [existing] = await connection.query("SELECT id FROM carts WHERE user_id = ?", [userId]);
+  if (existing.length) return existing[0].id;
+  const [created] = await connection.query("INSERT INTO carts (user_id) VALUES (?)", [userId]);
+  return created.insertId;
+}
+
+async function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ error: "Authentication required." });
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    const [rows] = await pool.query("SELECT id, full_name, email FROM users WHERE id = ?", [payload.userId]);
+    if (!rows.length) {
+      return res.status(401).json({ error: "User not found." });
+    }
+    req.user = { id: rows[0].id, name: rows[0].full_name, email: rows[0].email };
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid or expired session." });
+  }
+}
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "ProNutra API" });
+});
+
+app.post("/api/auth/signup", async (req, res) => {
+  const { name, email, password } = req.body || {};
+  const trimmedEmail = String(email || "").trim().toLowerCase();
+  const trimmedName = String(name || "").trim();
+
+  if (!trimmedName || trimmedName.length < 3) {
+    return res.status(400).json({ error: "Name must be at least 3 characters." });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    return res.status(400).json({ error: "Invalid email." });
+  }
+
+  if (!password || String(password).length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters." });
+  }
+
+  const [existing] = await pool.query("SELECT id FROM users WHERE email = ?", [trimmedEmail]);
+  if (existing.length) {
+    return res.status(409).json({ error: "Email already registered." });
+  }
+
+  const passwordHash = await bcrypt.hash(String(password), 10);
+  const [result] = await pool.query(
+    "INSERT INTO users (full_name, email, password_hash) VALUES (?, ?, ?)",
+    [trimmedName, trimmedEmail, passwordHash]
+  );
+  await pool.query("INSERT INTO carts (user_id) VALUES (?)", [result.insertId]);
+  const token = signToken({ id: result.insertId, email: trimmedEmail, full_name: trimmedName });
+  res.status(201).json({ token, user: { user_id: result.insertId, name: trimmedName, email: trimmedEmail } });
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body || {};
+  const trimmedEmail = String(email || "").trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    return res.status(400).json({ error: "Invalid email." });
+  }
+
+  const [rows] = await pool.query("SELECT id, full_name, email, password_hash FROM users WHERE email = ?", [trimmedEmail]);
+  if (!rows.length) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  const user = rows[0];
+  const validPassword = await bcrypt.compare(String(password || ""), user.password_hash);
+  if (!validPassword) {
+    return res.status(401).json({ error: "Wrong password." });
+  }
+
+  const token = signToken(user);
+  res.json({ token, user: { user_id: user.id, name: user.full_name, email: user.email } });
+});
+
+app.get("/api/auth/me", authMiddleware, async (req, res) => {
+  res.json({ user: { user_id: req.user.id, name: req.user.name, email: req.user.email } });
 });
 
 app.get("/api/products", async (req, res) => {
@@ -26,7 +121,49 @@ app.get("/api/products", async (req, res) => {
   res.json(rows);
 });
 
-app.post("/api/orders", async (req, res) => {
+app.get("/api/cart", authMiddleware, async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    const cartId = await getUserCart(connection, req.user.id);
+    const [rows] = await connection.query(
+      `SELECT ci.product_id, ci.quantity
+       FROM cart_items ci
+       WHERE ci.cart_id = ?`,
+      [cartId]
+    );
+    res.json({ items: rows });
+  } finally {
+    connection.release();
+  }
+});
+
+app.put("/api/cart/:productId", authMiddleware, async (req, res) => {
+  const { quantity } = req.body || {};
+  const qty = Number(quantity);
+  if (!Number.isInteger(qty) || qty < 0) {
+    return res.status(400).json({ error: "Quantity must be 0 or more." });
+  }
+
+  const connection = await pool.getConnection();
+  try {
+    const cartId = await getUserCart(connection, req.user.id);
+    if (qty === 0) {
+      await connection.query("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?", [cartId, req.params.productId]);
+    } else {
+      await connection.query(
+        `INSERT INTO cart_items (cart_id, product_id, quantity)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)`,
+        [cartId, req.params.productId, qty]
+      );
+    }
+    res.json({ ok: true });
+  } finally {
+    connection.release();
+  }
+});
+
+app.post("/api/orders", authMiddleware, async (req, res) => {
   const { customer, items, paymentMethod } = req.body;
 
   if (!customer || !Array.isArray(items) || items.length === 0) {
@@ -50,9 +187,9 @@ app.post("/api/orders", async (req, res) => {
     const total = subtotal + tax + delivery;
 
     const [orderResult] = await connection.query(
-      `INSERT INTO orders (customer_name, customer_email, customer_phone, customer_address, subtotal, tax, delivery, total, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [customer.name, customer.email, customer.phone, customer.address, subtotal, tax, delivery, total, "CREATED"]
+      `INSERT INTO orders (user_id, customer_name, customer_email, customer_phone, customer_address, subtotal, tax, delivery, total, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [req.user.id, customer.name, customer.email, customer.phone, customer.address, subtotal, tax, delivery, total, "CREATED"]
     );
 
     for (const item of items) {
@@ -70,6 +207,9 @@ app.post("/api/orders", async (req, res) => {
       [orderResult.insertId, paymentMethod || "dummy", total, "DUMMY_SUCCESS", `PN-${Date.now()}`]
     );
 
+    const cartId = await getUserCart(connection, req.user.id);
+    await connection.query("DELETE FROM cart_items WHERE cart_id = ?", [cartId]);
+
     await connection.commit();
     res.status(201).json({ orderId: orderResult.insertId, total, status: "DUMMY_SUCCESS" });
   } catch (error) {
@@ -78,6 +218,58 @@ app.post("/api/orders", async (req, res) => {
   } finally {
     connection.release();
   }
+});
+
+app.get("/api/orders", authMiddleware, async (req, res) => {
+  const [orders] = await pool.query(
+    `SELECT id, customer_name, customer_email, customer_phone, customer_address, subtotal, tax, delivery, total, status, created_at
+     FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+    [req.user.id]
+  );
+
+  const orderIds = orders.map((order) => order.id);
+  const itemsByOrder = new Map();
+  if (orderIds.length) {
+    const [items] = await pool.query(
+      `SELECT oi.order_id, oi.product_id, oi.quantity, oi.unit_price, p.name
+       FROM order_items oi
+       JOIN products p ON p.id = oi.product_id
+       WHERE oi.order_id IN (${orderIds.map(() => "?").join(",")})`,
+      orderIds
+    );
+    items.forEach((item) => {
+      const group = itemsByOrder.get(item.order_id) || [];
+      group.push(item);
+      itemsByOrder.set(item.order_id, group);
+    });
+  }
+
+  res.json({
+    orders: orders.map((order) => ({
+      id: `PN-${order.id}`,
+      createdAt: order.created_at,
+      customer: {
+        name: order.customer_name,
+        email: order.customer_email,
+        phone: order.customer_phone
+      },
+      address: order.customer_address,
+      totals: {
+        subtotal: Number(order.subtotal),
+        tax: Number(order.tax),
+        delivery: Number(order.delivery),
+        total: Number(order.total)
+      },
+      paymentMethod: "PayPal / Card / COD",
+      status: order.status,
+      items: (itemsByOrder.get(order.id) || []).map((item) => ({
+        id: item.product_id,
+        name: item.name,
+        qty: item.quantity,
+        price: Number(item.unit_price)
+      }))
+    }))
+  });
 });
 
 app.post("/api/paypal/create-order", async (req, res) => {

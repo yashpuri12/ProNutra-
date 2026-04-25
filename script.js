@@ -363,11 +363,15 @@ const PRODUCTS = [
   }
 ];
 
-const CART_KEY = "pronutra_cart_v2";
+const AUTH_KEY = "pronutra_user_v1";
+const API_BASE = "http://localhost:5000/api";
 const page = document.body.dataset.page || "home";
 let activeFilter = new URLSearchParams(window.location.search).get("category") || "all";
 let heroTimer = null;
 let activeHeroIndex = 0;
+let currentModalProductId = null;
+let cartState = {};
+let ordersState = [];
 
 const HERO_PRODUCTS = [
   {
@@ -440,17 +444,62 @@ function fallbackImage(category = "protein") {
   return fallbacks[category] || fallbacks.protein;
 }
 
-function readCart() {
+async function apiFetch(path, options = {}) {
+  const token = localStorage.getItem(AUTH_KEY);
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers
+  });
+
+  let data = {};
   try {
-    return JSON.parse(localStorage.getItem(CART_KEY)) || {};
+    data = await response.json();
   } catch {
-    return {};
+    data = {};
+  }
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed.");
+  }
+
+  return data;
+}
+
+function readCart() {
+  return cartState;
+}
+
+function readJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
   }
 }
 
-function writeCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  updateCartCount();
+function writeJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getCurrentUser() {
+  return readJson("pronutra_user_profile_v1", null);
+}
+
+function setCurrentUser(user) {
+  writeJson("pronutra_user_profile_v1", user);
+}
+
+function getOrders() {
+  return ordersState;
 }
 
 function getProduct(id) {
@@ -476,6 +525,39 @@ function updateCartCount() {
   document.querySelectorAll("#cartCount").forEach((el) => {
     el.textContent = count;
   });
+}
+
+function renderAuthUI() {
+  const user = getCurrentUser();
+  document.querySelectorAll(".auth-guest").forEach((el) => {
+    el.style.display = user ? "none" : "";
+  });
+  document.querySelectorAll(".auth-user").forEach((el) => {
+    el.style.display = user ? "" : "none";
+  });
+  const userBadge = document.querySelector("#ordersUser");
+  if (userBadge) {
+    userBadge.innerHTML = user
+      ? `<div class="orders-user-badge"><i class="fa-solid fa-user"></i><span>${user.name}</span></div>`
+      : `<div class="orders-user-badge"><i class="fa-solid fa-user"></i><span>Guest</span></div>`;
+  }
+  document.querySelectorAll("#profileName").forEach((el) => {
+    el.textContent = user ? user.name : "My Account";
+  });
+}
+
+function enforceAuthFlow() {
+  const token = localStorage.getItem(AUTH_KEY);
+  const publicPages = new Set(["login"]);
+  if (!token && !publicPages.has(page)) {
+    window.location.href = "login.html";
+    return false;
+  }
+  if (token && page === "login") {
+    window.location.href = "index.html";
+    return false;
+  }
+  return true;
 }
 
 function renderHeroProduct(index = 0) {
@@ -528,34 +610,78 @@ function startHeroRotation() {
   }, 3600);
 }
 
-function addToCart(id) {
-  const cart = readCart();
-  cart[id] = (cart[id] || 0) + 1;
-  writeCart(cart);
-  toast(`${getProduct(id).name} added to cart`);
-  renderCartPage();
-  renderCheckoutPage();
+async function fetchCart() {
+  const response = await apiFetch("/cart");
+  cartState = (response.items || []).reduce((acc, item) => {
+    acc[item.product_id] = item.quantity;
+    return acc;
+  }, {});
 }
 
-function setQty(id, qty) {
+async function fetchOrders() {
+  const response = await apiFetch("/orders");
+  ordersState = response.orders || [];
+}
+
+async function addToCart(id) {
   const cart = readCart();
-  if (qty <= 0) {
-    delete cart[id];
-  } else {
-    cart[id] = qty;
+  const nextQty = (cart[id] || 0) + 1;
+  await apiFetch(`/cart/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ quantity: nextQty })
+  });
+  await fetchCart();
+  toast(getProduct(id));
+  refreshStoreUI();
+}
+
+async function setQty(id, qty) {
+  await apiFetch(`/cart/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ quantity: Math.max(0, qty) })
+  });
+  await fetchCart();
+  refreshStoreUI();
+}
+
+async function clearCart() {
+  const entries = Object.entries(readCart());
+  await Promise.all(entries.map(([id]) => apiFetch(`/cart/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ quantity: 0 })
+  })));
+  cartState = {};
+  refreshStoreUI();
+}
+
+function refreshStoreUI() {
+  updateCartCount();
+  renderFeatured();
+  renderProducts();
+  renderCartPage();
+  renderCheckoutPage();
+  renderGuidanceProducts();
+  if (currentModalProductId && document.querySelector(".modal.show")) {
+    openProduct(currentModalProductId);
   }
-  writeCart(cart);
-  renderCartPage();
-  renderCheckoutPage();
-}
-
-function clearCart() {
-  writeCart({});
-  renderCartPage();
-  renderCheckoutPage();
 }
 
 function productCard(product, index = 0) {
+  const qty = readCart()[product.id] || 0;
+  const actionMarkup = qty > 0
+    ? `
+      <div class="qty-inline" aria-label="Quantity controls">
+        <button class="btn btn-outline-success qty-inline-btn" type="button" data-minus="${product.id}" aria-label="Decrease quantity">-</button>
+        <strong>${qty}</strong>
+        <button class="btn btn-success qty-inline-btn" type="button" data-plus="${product.id}" aria-label="Increase quantity">+</button>
+      </div>
+    `
+    : `
+      <button class="btn btn-success" type="button" data-add="${product.id}">
+        <i class="fa-solid fa-cart-plus me-1"></i>Add
+      </button>
+    `;
+
   return `
     <div class="col-md-6 col-lg-4" style="--delay:${index * 55}ms">
       <article class="product-card">
@@ -579,9 +705,7 @@ function productCard(product, index = 0) {
             <button class="btn btn-outline-success" type="button" data-view="${product.id}">
               <i class="fa-solid fa-eye me-1"></i>View
             </button>
-            <button class="btn btn-success" type="button" data-add="${product.id}">
-              <i class="fa-solid fa-cart-plus me-1"></i>Add
-            </button>
+            ${actionMarkup}
           </div>
         </div>
       </article>
@@ -592,6 +716,20 @@ function productCard(product, index = 0) {
 function guidanceCard(item, index = 0) {
   const product = getProduct(item.id);
   if (!product) return "";
+  const qty = readCart()[product.id] || 0;
+  const actionMarkup = qty > 0
+    ? `
+      <div class="qty-inline guidance-qty" aria-label="Quantity controls">
+        <button class="btn btn-outline-success qty-inline-btn" type="button" data-minus="${product.id}" aria-label="Decrease quantity">-</button>
+        <strong>${qty}</strong>
+        <button class="btn btn-success qty-inline-btn" type="button" data-plus="${product.id}" aria-label="Increase quantity">+</button>
+      </div>
+    `
+    : `
+      <button class="btn btn-warning" type="button" data-add="${product.id}">
+        <i class="fa-solid fa-cart-plus me-1"></i>${item.cta}
+      </button>
+    `;
 
   return `
     <article class="guidance-card ${index === 1 ? "featured" : ""}" style="--delay:${index * 90}ms">
@@ -612,9 +750,7 @@ function guidanceCard(item, index = 0) {
       </ul>
       <div class="guidance-actions">
         <strong>${money(product.price)}</strong>
-        <button class="btn btn-warning" type="button" data-add="${product.id}">
-          <i class="fa-solid fa-cart-plus me-1"></i>${item.cta}
-        </button>
+        ${actionMarkup}
       </div>
     </article>
   `;
@@ -715,6 +851,7 @@ function renderCheckoutPage() {
 }
 
 function openProduct(id) {
+  currentModalProductId = id;
   const product = getProduct(id);
   const title = document.querySelector("#productModalTitle");
   const body = document.querySelector("#productModalBody");
@@ -733,9 +870,23 @@ function openProduct(id) {
         <h4 class="text-success">${money(product.price)}</h4>
         <div class="rating-row"><i class="fa-solid fa-star"></i><strong>${product.rating}</strong><small>Customer rating</small></div>
         <ul>${product.details.map((detail) => `<li>${detail}</li>`).join("")}</ul>
-        <button class="btn btn-success mt-2" type="button" data-add="${product.id}">
-          <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
-        </button>
+        ${(() => {
+          const qty = readCart()[product.id] || 0;
+          if (qty > 0) {
+            return `
+              <div class="qty-inline modal-qty mt-3" aria-label="Quantity controls">
+                <button class="btn btn-outline-success qty-inline-btn" type="button" data-minus="${product.id}" aria-label="Decrease quantity">-</button>
+                <strong>${qty}</strong>
+                <button class="btn btn-success qty-inline-btn" type="button" data-plus="${product.id}" aria-label="Increase quantity">+</button>
+              </div>
+            `;
+          }
+          return `
+            <button class="btn btn-success mt-2" type="button" data-add="${product.id}">
+              <i class="fa-solid fa-cart-plus me-2"></i>Add to Cart
+            </button>
+          `;
+        })()}
       </div>
     </div>
   `;
@@ -754,7 +905,7 @@ function syncPayment() {
     : `<i class="fa-solid fa-lock me-2"></i>Place Secure Order`;
 }
 
-function handleCheckout(event) {
+async function handleCheckout(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const status = document.querySelector("#orderStatus");
@@ -770,15 +921,39 @@ function handleCheckout(event) {
     return;
   }
 
-  const orderId = `PN-${Date.now().toString().slice(-7)}`;
   const method = document.querySelector("#paymentMethod");
+  let orderResponse;
+  try {
+    orderResponse = await apiFetch("/orders", {
+      method: "POST",
+      body: JSON.stringify({
+        customer: {
+          name: document.querySelector("#customerName")?.value || "",
+          email: document.querySelector("#customerEmail")?.value || "",
+          phone: document.querySelector("#customerPhone")?.value || "",
+          address: document.querySelector("#customerAddress")?.value || ""
+        },
+        paymentMethod: method.value,
+        items: entries.map(({ product, qty }) => ({
+          productId: product.id,
+          quantity: qty
+        }))
+      })
+    });
+    cartState = {};
+    await fetchOrders();
+  } catch (error) {
+    status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    return;
+  }
   status.innerHTML = `
     <div class="alert alert-success">
       <strong>Order placed successfully.</strong><br>
-      Order <strong>${orderId}</strong> placed using ${method.options[method.selectedIndex].text}.
+      Order <strong>PN-${orderResponse.orderId}</strong> placed using ${method.options[method.selectedIndex].text}.
+      <br><a href="orders.html" class="alert-link">Track your order</a>
     </div>
   `;
-  clearCart();
+  refreshStoreUI();
   form.reset();
   syncPayment();
 }
@@ -795,14 +970,196 @@ function handleContact(event) {
   form.reset();
 }
 
-function toast(message) {
+async function handleLogin(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.querySelector("#loginStatus");
+  if (!form.checkValidity()) {
+    form.classList.add("was-validated");
+    return;
+  }
+  try {
+    const response = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: document.querySelector("#loginEmail")?.value.trim(),
+        password: document.querySelector("#loginPassword")?.value
+      })
+    });
+    localStorage.setItem(AUTH_KEY, response.token);
+    setCurrentUser(response.user);
+    await fetchCart();
+    await fetchOrders();
+    renderAuthUI();
+    status.innerHTML = `<div class="alert alert-success">Sign in successful. Welcome back, ${response.user.name}.</div>`;
+  } catch (error) {
+    status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    return;
+  }
+  form.reset();
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 900);
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.querySelector("#signupStatus");
+  if (!form.checkValidity()) {
+    form.classList.add("was-validated");
+    return;
+  }
+  const password = document.querySelector("#signupPassword")?.value || "";
+  const confirm = document.querySelector("#signupConfirmPassword")?.value || "";
+  if (password !== confirm) {
+    status.innerHTML = `<div class="alert alert-danger">Passwords do not match.</div>`;
+    return;
+  }
+  const email = document.querySelector("#signupEmail")?.value.trim() || "";
+  try {
+    const response = await apiFetch("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        name: document.querySelector("#signupName")?.value.trim() || "User",
+        email,
+        password
+      })
+    });
+    localStorage.setItem(AUTH_KEY, response.token);
+    setCurrentUser(response.user);
+    cartState = {};
+    ordersState = [];
+    renderAuthUI();
+    status.innerHTML = `<div class="alert alert-success">Account created successfully. Welcome, ${response.user.name}.</div>`;
+  } catch (error) {
+    status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    return;
+  }
+  form.reset();
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 900);
+}
+
+function handleLogout() {
+  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem("pronutra_user_profile_v1");
+  cartState = {};
+  ordersState = [];
+  renderAuthUI();
+  window.location.href = "login.html";
+}
+
+function renderOrdersPage() {
+  const list = document.querySelector("#ordersList");
+  const latest = document.querySelector("#latestOrderStatus");
+  const summary = document.querySelector("#ordersSummary");
+  if (!list || !latest) return;
+
+  const orders = getOrders();
+
+  if (!orders.length) {
+    if (summary) summary.innerHTML = "";
+    list.innerHTML = `<div class="empty-state">No orders yet. Complete checkout to see order history here.</div>`;
+    latest.innerHTML = `<div class="empty-state">No tracked orders available.</div>`;
+    return;
+  }
+
+  if (summary) {
+    const totalSpent = orders.reduce((sum, order) => sum + order.totals.total, 0);
+    summary.innerHTML = `
+      <div><span>Total Orders</span><strong>${orders.length}</strong></div>
+      <div><span>Total Spent</span><strong>${money(totalSpent)}</strong></div>
+      <div><span>Latest Status</span><strong>${orders[0].status}</strong></div>
+    `;
+  }
+
+  list.innerHTML = orders.map((order) => `
+    <article class="order-card">
+      <div class="order-top">
+        <div>
+          <div class="order-label">Order ID</div>
+          <h3>${order.id}</h3>
+        </div>
+        <span class="order-status">${order.status}</span>
+      </div>
+      <div class="order-meta-grid">
+        <div><span>Date</span><strong>${new Date(order.createdAt).toLocaleDateString("en-IN")}</strong></div>
+        <div><span>Payment</span><strong>${order.paymentMethod}</strong></div>
+        <div><span>Total</span><strong>${money(order.totals.total)}</strong></div>
+        <div><span>Items</span><strong>${order.items.reduce((sum, item) => sum + item.qty, 0)}</strong></div>
+      </div>
+      <div class="order-items">
+        ${order.items.map((item) => `<div class="order-item-row"><span>${item.name} x ${item.qty}</span><strong>${money(item.price * item.qty)}</strong></div>`).join("")}
+      </div>
+    </article>
+  `).join("");
+
+  const latestOrder = orders[0];
+  latest.innerHTML = `
+    <div class="track-card">
+      <div class="track-header">
+        <strong>${latestOrder.id}</strong>
+        <span>${latestOrder.status}</span>
+      </div>
+      <div class="track-steps">
+        <div class="active"><i class="fa-solid fa-bag-shopping"></i><span>Order placed</span></div>
+        <div class="active"><i class="fa-solid fa-box"></i><span>Processing</span></div>
+        <div><i class="fa-solid fa-truck"></i><span>Out for delivery</span></div>
+        <div><i class="fa-solid fa-house"></i><span>Delivered</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function initAuthTabs() {
+  const signinPanel = document.querySelector("#signinPanel");
+  const signupPanel = document.querySelector("#signupPanel");
+  if (!signinPanel || !signupPanel) return;
+  const hash = window.location.hash === "#signup" ? "signup" : "signin";
+  const show = (tab) => {
+    document.querySelectorAll("[data-auth-tab]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.authTab === tab);
+    });
+    signinPanel.classList.toggle("auth-panel-hidden", tab !== "signin");
+    signupPanel.classList.toggle("auth-panel-hidden", tab !== "signup");
+  };
+  show(hash);
+  document.querySelectorAll("[data-auth-tab]").forEach((button) => {
+    button.addEventListener("click", () => show(button.dataset.authTab));
+  });
+}
+
+async function restoreSession() {
+  const token = localStorage.getItem(AUTH_KEY);
+  if (!token) return null;
+  try {
+    const response = await apiFetch("/auth/me");
+    setCurrentUser(response.user);
+    return response.user;
+  } catch (error) {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem("pronutra_user_profile_v1");
+    return null;
+  }
+}
+
+function toast(product) {
   const area = document.querySelector("#toastArea");
   if (!area) return;
   const node = document.createElement("div");
   node.className = "demo-toast";
-  node.textContent = message;
+  node.innerHTML = `
+    <div class="toast-head">
+      <i class="fa-solid fa-circle-check"></i>
+      <strong>Added to cart</strong>
+    </div>
+    <div class="toast-body-text">${product.name} has been added successfully.</div>
+    <a href="cart.html" class="toast-link">View Cart</a>
+  `;
   area.appendChild(node);
-  setTimeout(() => node.remove(), 2400);
+  setTimeout(() => node.remove(), 3200);
 }
 
 document.addEventListener("click", (event) => {
@@ -831,10 +1188,15 @@ document.addEventListener("click", (event) => {
 });
 
 document.querySelector("#productSearch")?.addEventListener("input", renderProducts);
-document.querySelector("#clearCartBtn")?.addEventListener("click", clearCart);
+document.querySelector("#clearCartBtn")?.addEventListener("click", () => { clearCart(); });
 document.querySelector("#paymentMethod")?.addEventListener("change", syncPayment);
 document.querySelector("#checkoutForm")?.addEventListener("submit", handleCheckout);
 document.querySelector("#contactForm")?.addEventListener("submit", handleContact);
+document.querySelector("#loginForm")?.addEventListener("submit", handleLogin);
+document.querySelector("#signupForm")?.addEventListener("submit", handleSignup);
+document.querySelectorAll("#logoutBtn").forEach((button) => {
+  button.addEventListener("click", handleLogout);
+});
 document.querySelectorAll(".category-tile img").forEach((img) => {
   img.addEventListener("error", () => {
     img.src = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=900&auto=format&fit=crop";
@@ -850,11 +1212,25 @@ document.querySelectorAll("[data-hero-step]").forEach((button) => {
   });
 });
 
-updateCartCount();
-startHeroRotation();
-renderFeatured();
-renderGuidanceProducts();
-renderProducts();
-renderCartPage();
-renderCheckoutPage();
-syncPayment();
+async function bootstrapApp() {
+  if (!enforceAuthFlow()) return;
+  const user = await restoreSession();
+  if (!user && page !== "login") {
+    window.location.href = "login.html";
+    return;
+  }
+  if (user) {
+    await Promise.all([fetchCart(), fetchOrders()]);
+  } else {
+    cartState = {};
+    ordersState = [];
+  }
+  startHeroRotation();
+  renderAuthUI();
+  initAuthTabs();
+  refreshStoreUI();
+  syncPayment();
+  renderOrdersPage();
+}
+
+bootstrapApp();

@@ -20,9 +20,18 @@
           <ul class="navbar-nav ms-auto align-items-lg-center">
             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-            <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+            <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
             <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
+            <li class="nav-item dropdown ms-lg-2 auth-user">
+              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+                <i class="fa-solid fa-user"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end profile-menu">
+                <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
+                <li><a class="dropdown-item" href="orders.html">Orders</a></li>
+                <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>

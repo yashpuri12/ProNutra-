@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Cart | ProNutra Nutrition Store</title>
-  <meta name="description" content="Review your ProNutra cart with protein supplements, nutrition diet products, and wellness essentials.">
+  <title>My Orders | ProNutra</title>
+  <meta name="description" content="Track your ProNutra orders, order history, and delivery status.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="cart">
+<body data-page="orders">
   <header class="site-header compact">
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
@@ -19,7 +19,7 @@
           <ul class="navbar-nav ms-auto align-items-lg-center">
             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link active" href="cart.html">Cart</a></li>
+            <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
             <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
             <li class="nav-item dropdown ms-lg-2 auth-user">
               <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
@@ -27,7 +27,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end profile-menu">
                 <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
-                <li><a class="dropdown-item" href="orders.html">Orders</a></li>
+                <li><a class="dropdown-item active" href="orders.html">Orders</a></li>
                 <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
               </ul>
             </li>
@@ -37,34 +37,36 @@
     </nav>
     <div class="page-title">
       <div class="container">
-        <p class="eyebrow">Shopping Cart</p>
-        <h1>Your Shopping Cart</h1>
-        <p>Review your nutrition products, update quantities, and continue to secure checkout.</p>
+        <p class="eyebrow">Track Orders</p>
+        <h1>Your Order History</h1>
+        <p>Track your latest nutrition orders, view items, and check order progress.</p>
       </div>
     </div>
   </header>
 
-  <main class="section-pad">
+  <main class="section-pad product-band">
     <div class="container">
-      <div class="cart-layout">
+      <div class="orders-layout">
         <section class="panel">
-          <h2>Cart Items</h2>
-          <div id="cartItems"></div>
+          <div class="orders-header">
+            <div>
+              <p class="eyebrow mb-1">Recent Orders</p>
+              <h2 class="mb-0">Order Timeline</h2>
+            </div>
+            <div class="orders-user" id="ordersUser"></div>
+          </div>
+          <div class="orders-summary" id="ordersSummary"></div>
+          <div id="ordersList"></div>
         </section>
-        <aside class="panel summary-panel">
-          <h2>Order Summary</h2>
-          <div class="summary-line"><span>Subtotal</span><strong id="cartSubtotal">Rs. 0</strong></div>
-          <div class="summary-line"><span>GST 18%</span><strong id="cartTax">Rs. 0</strong></div>
-          <div class="summary-line"><span>Delivery</span><strong id="cartDelivery">Rs. 0</strong></div>
-          <div class="summary-line total"><span>Total</span><strong id="cartTotal">Rs. 0</strong></div>
-          <a class="btn btn-success w-100 mt-3" id="checkoutLink" href="checkout.html"><i class="fa-solid fa-lock me-2"></i>Proceed to Checkout</a>
-          <button class="btn btn-outline-danger w-100 mt-2" id="clearCartBtn" type="button">Clear Cart</button>
+        <aside class="panel">
+          <p class="eyebrow">Tracking</p>
+          <h2>Delivery status</h2>
+          <div id="latestOrderStatus"></div>
         </aside>
       </div>
     </div>
   </main>
 
-  <div id="toastArea" class="toast-area"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
