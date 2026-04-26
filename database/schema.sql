@@ -83,7 +83,7 @@ INSERT INTO products (id, name, category, price, rating, badge, image_url, descr
 ('creatine', 'Creatine Monohydrate', 'performance', 899, 4.9, 'Strength', 'https://source.unsplash.com/h2fn-gkM60A/900x620', 'Pure micronized creatine for strength and power output.'),
 ('omega', 'Omega-3 Fish Oil', 'wellness', 749, 4.6, 'Heart Care', 'https://source.unsplash.com/nBNobTKhniQ/900x620', 'Omega-3 softgels for heart and joint wellness.'),
 ('oats-protein', 'Protein Oats', 'foods', 499, 4.6, 'Breakfast', 'https://source.unsplash.com/UFQQkXV-jwU/900x620', 'High-fiber oats for healthy fitness breakfast.'),
-('peanut-butter', 'High Protein Peanut Butter', 'foods', 399, 4.7, 'Food', 'https://source.unsplash.com/jgiyGOUO19E/900x620', 'Protein-rich peanut butter for snacks and shakes.'),
+('peanut-butter', 'High Protein Peanut Butter', 'foods', 399, 4.7, 'Food', 'https://www.organicfacts.net/wp-content/uploads/peanutbutter1.jpg', 'Protein-rich peanut butter for snacks and shakes.'),
 ('fat-loss-plan', 'Fat Loss Fitness Plan', 'plans', 999, 4.8, 'Plan', 'https://images.unsplash.com/photo-1571019613914-85f342c6a11e?q=80&w=900&auto=format&fit=crop', 'Workout and nutrition guidance for healthy fat loss.'),
 ('muscle-gain-plan', 'Muscle Gain Program', 'plans', 1299, 4.9, 'Coaching', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=900&auto=format&fit=crop', 'Training and high protein diet guidance for muscle gain.'),
 ('resistance-bands', 'Resistance Bands Set', 'equipment', 799, 4.7, 'Training', 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=900&auto=format&fit=crop', 'Portable resistance bands for strength training.'),

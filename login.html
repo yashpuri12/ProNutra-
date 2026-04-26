@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | ProNutra</title>
-  <meta name="description" content="Login to your ProNutra account to manage orders, cart, and wellness shopping.">
+  <meta name="description" content="Sign in to ProNutra for healthy fitness shopping, whey protein, wellness products, and order tracking.">
+  <meta name="keywords" content="ProNutra login, healthy fitness store, healthy fitness, nutrition, nutrition diet, protein supplements, whey protein, plant protein, wellness products, healthy fit body, fit and healthy body, secure login, fitness shopping">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="login">
-  <header class="site-header compact auth-header-only">
+  <!-- Login and signup page -->
+  <header class="site-header">
     <nav class="navbar navbar-dark">
       <div class="container">
         <a class="navbar-brand" href="login.html"><span>Pro</span>Nutra</a>
@@ -22,48 +24,37 @@
     <div class="container">
       <div class="login-layout">
         <section class="login-panel">
-          <a href="index.html" class="login-brand"><span>Pro</span>Nutra</a>
-          <div class="login-kicker-row">
-            <span class="login-chip"><i class="fa-solid fa-shield-heart"></i> Secure account</span>
-            <span class="login-chip"><i class="fa-solid fa-bolt"></i> Fast checkout</span>
-          </div>
+          <a class="login-brand" href="login.html"><span>Pro</span>Nutra</a>
           <div class="auth-tabs">
             <button class="active" type="button" data-auth-tab="signin">Sign In</button>
             <button type="button" data-auth-tab="signup">Create Account</button>
           </div>
+
           <div id="signinPanel">
-            <h1>Welcome back to your nutrition store.</h1>
-            <p>Sign in to manage your cart, track orders, and continue your ProNutra wellness journey.</p>
-            <form id="loginForm" novalidate>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label" for="loginEmail">Email</label>
-                  <input class="form-control form-control-lg" id="loginEmail" type="email" placeholder="you@example.com" required>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="loginPassword">Password</label>
-                  <input class="form-control form-control-lg" id="loginPassword" type="password" placeholder="Enter password" required minlength="6">
-                </div>
+            <h1>Welcome back to your healthy fitness store.</h1>
+            <p>Sign in to shop protein supplements, nutrition diet foods, wellness products, and track your orders.</p>
+            <form id="loginForm">
+              <div class="mb-3">
+                <label class="form-label" for="loginEmail">Email</label>
+                <input class="form-control form-control-lg" id="loginEmail" type="email" required>
               </div>
-              <div class="login-actions">
-                <button class="btn btn-success btn-lg" type="submit"><i class="fa-solid fa-right-to-bracket me-2"></i>Sign In</button>
+              <div class="mb-3">
+                <label class="form-label" for="loginPassword">Password</label>
+                <input class="form-control form-control-lg" id="loginPassword" type="password" required>
               </div>
+              <button class="btn btn-success btn-lg w-100" type="submit">Sign In</button>
               <div id="loginStatus" class="mt-3"></div>
             </form>
-            <div class="auth-footnote">
-              <span>Track orders</span>
-              <span>Save products</span>
-              <span>Checkout faster</span>
-            </div>
           </div>
-          <div id="signupPanel" class="auth-panel-hidden">
+
+          <div id="signupPanel" class="hidden-panel">
             <h1>Create your ProNutra account.</h1>
-            <p>Save your orders, reorder faster, and keep your wellness shopping in one place.</p>
-            <form id="signupForm" novalidate>
+            <p>Create your account to save your cart, order protein products faster, and manage wellness shopping easily.</p>
+            <form id="signupForm">
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label" for="signupName">Full Name</label>
-                  <input class="form-control form-control-lg" id="signupName" required minlength="3">
+                  <input class="form-control form-control-lg" id="signupName" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label" for="signupEmail">Email</label>
@@ -71,57 +62,34 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label" for="signupPassword">Password</label>
-                  <input class="form-control form-control-lg" id="signupPassword" type="password" required minlength="6">
+                  <input class="form-control form-control-lg" id="signupPassword" type="password" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
-                  <input class="form-control form-control-lg" id="signupConfirmPassword" type="password" required minlength="6">
+                  <input class="form-control form-control-lg" id="signupConfirmPassword" type="password" required>
                 </div>
               </div>
-              <div class="login-actions">
-                <button class="btn btn-warning btn-lg" type="submit"><i class="fa-solid fa-user-plus me-2"></i>Create Account</button>
-              </div>
+              <button class="btn btn-warning btn-lg w-100 mt-4" type="submit">Create Account</button>
               <div id="signupStatus" class="mt-3"></div>
             </form>
-            <div class="auth-footnote">
-              <span>Order history</span>
-              <span>Wellness plans</span>
-              <span>Member access</span>
-            </div>
           </div>
         </section>
 
         <aside class="login-side">
-          <div>
-            <p class="eyebrow">Member Benefits</p>
-            <h2 class="text-white fw-bold mb-3">Track orders, save plans, and shop faster.</h2>
-            <p>Keep your nutrition products, wellness essentials, and training guidance in one place with a simple account experience.</p>
+          <img class="login-side-image" src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1200&auto=format&fit=crop" alt="Healthy fitness lifestyle and workout">
+          <p class="eyebrow">Healthy Fitness Store</p>
+          <h2>Nutrition, protein, and wellness in one place.</h2>
+          <p>Join ProNutra to explore whey protein, plant protein, healthy breakfast foods, balanced diet support, and daily wellness essentials.</p>
+          <div class="mini-points">
+            <div><strong>Protein & Recovery</strong><br><small>Whey protein, plant protein, and strength nutrition support.</small></div>
+            <div><strong>Healthy Foods</strong><br><small>Oats, peanut butter, granola, and balanced diet essentials.</small></div>
+            <div><strong>Daily Wellness</strong><br><small>Omega-3, vitamins, and healthy lifestyle support products.</small></div>
           </div>
-          <div class="login-side-cards">
-            <div>
-              <strong>30+</strong>
-              <span>Fitness products</span>
-            </div>
-            <div>
-              <strong>Orders</strong>
-              <span>Track history anytime</span>
-            </div>
-            <div>
-              <strong>Plans</strong>
-              <span>Save wellness guidance</span>
-            </div>
-          </div>
-          <ul>
-            <li><i class="fa-solid fa-check"></i>Save your cart and favorite products</li>
-            <li><i class="fa-solid fa-check"></i>Quick checkout for repeat orders</li>
-            <li><i class="fa-solid fa-check"></i>Access wellness plans and training products faster</li>
-          </ul>
         </aside>
       </div>
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

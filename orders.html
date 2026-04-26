@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Orders | ProNutra</title>
-  <meta name="description" content="Track your ProNutra orders, order history, and delivery status.">
+  <title>Orders | ProNutra</title>
+  <meta name="description" content="Track your ProNutra order history for nutrition products, healthy food items, and wellness support.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="orders">
-  <header class="site-header compact">
+  <!-- Order history page -->
+  <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
         <a class="navbar-brand" href="index.html"><span>Pro</span>Nutra</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="menu">
-          <ul class="navbar-nav ms-auto align-items-lg-center">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
-            <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
-            <li class="nav-item dropdown ms-lg-2 auth-user">
-              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-                <i class="fa-solid fa-user"></i>
+            <li class="nav-item"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong data-cart-count>0</strong></a></li>
+            <li class="nav-item dropdown">
+              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                <span class="profile-avatar" data-profile-initial>A</span>
+                <span class="profile-label">Account</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end profile-menu">
-                <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
+                <li><span class="dropdown-item-text" data-profile-name>My Account</span></li>
                 <li><a class="dropdown-item active" href="orders.html">Orders</a></li>
                 <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
               </ul>
@@ -35,37 +36,51 @@
         </div>
       </div>
     </nav>
-    <div class="page-title">
+    <div class="page-intro">
       <div class="container">
-        <p class="eyebrow">Track Orders</p>
-        <h1>Your Order History</h1>
-        <p>Track your latest nutrition orders, view items, and check order progress.</p>
+        <p class="eyebrow">Order History</p>
+        <h1>Track your recent orders</h1>
+        <p>Check your recent product purchases, payment mode, and saved order details.</p>
       </div>
     </div>
   </header>
 
-  <main class="section-pad product-band">
+  <main class="section">
     <div class="container">
       <div class="orders-layout">
         <section class="panel">
-          <div class="orders-header">
-            <div>
-              <p class="eyebrow mb-1">Recent Orders</p>
-              <h2 class="mb-0">Order Timeline</h2>
-            </div>
-            <div class="orders-user" id="ordersUser"></div>
-          </div>
-          <div class="orders-summary" id="ordersSummary"></div>
+          <h2 class="mb-3">My Orders</h2>
           <div id="ordersList"></div>
         </section>
         <aside class="panel">
-          <p class="eyebrow">Tracking</p>
-          <h2>Delivery status</h2>
-          <div id="latestOrderStatus"></div>
+          <h2 class="mb-3">Order Support</h2>
+          <div class="mini-points">
+            <div><strong>Order Details</strong><br><small>View order id, date, payment mode, and total amount.</small></div>
+            <div><strong>Saved Cart Flow</strong><br><small>Your products remain linked to your own account session.</small></div>
+            <div><strong>Easy Tracking</strong><br><small>Check your latest nutrition and wellness purchases anytime.</small></div>
+          </div>
         </aside>
       </div>
     </div>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong class="footer-brand"><span>Pro</span>Nutra</strong>
+        <p>Premium whey protein, healthy fitness foods, wellness support, and balanced nutrition diet.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+      </div>
+      <div class="footer-copy">
+        <span>&copy; 2026 ProNutra. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>

@@ -3,49 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProNutra | Premium Nutrition, Protein Supplements & Healthy Fitness</title>
-  <meta name="description" content="Shop ProNutra nutrition diet products, whey protein, high protein diet supplements, healthy fitness essentials, wellness capsules, and diet plans.">
-  <meta name="keywords" content="healthy fitness, nutrition, protein supplements, high protein diet, nutrition diet, whey protein, stay fit healthy, healthy fit body, wellness supplements, diet plan">
+  <title>ProNutra | Healthy Fitness Store</title>
+  <meta name="description" content="ProNutra offers premium nutrition, whey protein, plant protein, healthy fitness foods, wellness supplements, and diet plans for active lifestyles.">
+  <meta name="keywords" content="healthy fitness, nutrition, nutrition food, healthy fit body, fit and healthy body, stay fit healthy, how to be fit and healthy, how to stay fit and healthy, how to remain fit and healthy, importance of fitness for healthy life, protein supplements, whey protein, plant protein, mass gainer, creatine, omega 3, multivitamin, healthy food, protein oats, peanut butter, granola, wellness capsules, balanced diet plan, yoga wellness, fitness store, health supplements, gym nutrition, active lifestyle">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="home">
+  <!-- Main navigation -->
   <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
         <a class="navbar-brand" href="index.html"><span>Pro</span>Nutra</a>
-
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-   <span class="navbar-toggler-icon"></span>
-</button>
-
-<a class="btn btn-warning nav-cart mobile-cart d-lg-none" href="cart.html">
-   <i class="fa-solid fa-cart-shopping"></i>
-   <span>Cart</span>
-   <strong id="cartCount">0</strong>
-</a>
-
-<div class="collapse navbar-collapse" id="menu">
-
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="menu">
-          <ul class="navbar-nav ms-auto align-items-lg-center">
+          <form class="nav-search mx-lg-auto" id="homeSearchForm">
+            <input type="search" id="homeSearch" placeholder="Search whey protein, nutrition, wellness...">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
-            <li class="nav-item ms-lg-3">
-              <a class="btn btn-warning nav-cart" href="cart.html">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span>Cart</span>
-                <strong id="cartCount">0</strong>
-              </a>
-            </li>
-            <li class="nav-item dropdown ms-lg-2 auth-user">
-              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-                <i class="fa-solid fa-user"></i>
+            <li class="nav-item"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong data-cart-count>0</strong></a></li>
+            <li class="nav-item dropdown">
+              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                <span class="profile-avatar" data-profile-initial>A</span>
+                <span class="profile-label">Account</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end profile-menu">
-                <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
+                <li><span class="dropdown-item-text" data-profile-name>My Account</span></li>
                 <li><a class="dropdown-item" href="orders.html">Orders</a></li>
                 <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
               </ul>
@@ -54,189 +41,74 @@
         </div>
       </div>
     </nav>
+
+    <section class="hero">
+      <div class="container">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-6">
+            <p class="eyebrow">Healthy Fitness Nutrition</p>
+            <h1>Premium nutrition, healthy fitness foods, and wellness products.</h1>
+            <p class="hero-copy">Shop whey protein, plant protein, healthy breakfast foods, wellness supplements, and balanced diet support for everyday strength, recovery, active living, and a healthy fit body.</p>
+            <div class="d-flex flex-wrap gap-3">
+              <a class="btn btn-warning btn-lg" href="products.html">Shop Products</a>
+              <a class="btn btn-outline-light btn-lg" href="orders.html">Track Orders</a>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="hero-card">
+              <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1100&auto=format&fit=crop" alt="Fitness and nutrition store">
+              <h3 class="text-white">Fuel your routine with clean nutrition</h3>
+              <p class="mb-0 text-white-50">Discover healthy fitness products, high protein diet support, and wellness essentials with a simple shopping experience.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="hero-bg"></div>
-      <div class="container">
-        <div class="row align-items-center g-5">
-          <div class="col-lg-6 reveal-up">
-            <p class="eyebrow">Nutrition Diet & Healthy Fitness Store</p>
-            <h1>Premium nutrition, fitness foods, and wellness products.</h1>
-            <p class="hero-copy">
-              Shop high-quality whey protein, plant protein, fitness foods, wellness support, workout equipment, and guided nutrition plans for active lifestyles.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-warning btn-lg" href="products.html"><i class="fa-solid fa-bag-shopping me-2"></i>Shop Products</a>
-              <a class="btn btn-outline-light btn-lg" href="about.html"><i class="fa-solid fa-leaf me-2"></i>About ProNutra</a>
-            </div>
-            <div class="hero-stats">
-              <div><strong>30+</strong><span>Fitness products</span></div>
-              <div><strong>4.8</strong><span>Customer rating</span></div>
-              <div><strong>Fast</strong><span>India delivery</span></div>
-            </div>
-          </div>
-          <div class="col-lg-6 reveal-up reveal-delay">
-            <div class="hero-showcase" id="heroShowcase">
-              <div class="hero-product-frame">
-                <img id="heroProductImage" src="https://source.unsplash.com/h2fn-gkM60A/1200x820" alt="ProNutra featured fitness product">
-                <div class="hero-product-badge" id="heroProductBadge">Best Seller</div>
-              </div>
-              <div class="hero-card product-spotlight">
-                <i class="fa-solid fa-shield-halved"></i>
-                <div>
-                  <span id="heroProductCategory">Protein Supplement</span>
-                  <strong id="heroProductTitle">ProNutra Whey Gold</strong>
-                  <p id="heroProductBenefit">Supports muscle recovery, strength, and daily high protein nutrition.</p>
-                  <div class="hero-product-meta">
-                    <span id="heroProductPrice">Rs. 1,899</span>
-                    <span><i class="fa-solid fa-star"></i> <b id="heroProductRating">4.8</b></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="brand-strip">
-      <div class="container">
-        <div class="strip-grid">
-          <div><i class="fa-solid fa-certificate"></i>Premium nutrition quality</div>
-          <div><i class="fa-solid fa-truck-fast"></i>Free delivery above Rs. 2500</div>
-          <div><i class="fa-solid fa-lock"></i>Safe online checkout</div>
-          <div><i class="fa-solid fa-dumbbell"></i>Fitness-focused products</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-pad">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Shop by Goal</p>
-          <h2>Shop by health goal</h2>
-          <p>Choose nutrition products based on your fitness goal, diet routine, and healthy lifestyle needs.</p>
-        </div>
-        <div class="category-grid category-grid-wide">
-          <a href="products.html?category=protein" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=900&auto=format&fit=crop" alt="Protein powder and supplement product">
-            <span>Protein</span>
-          </a>
-          <a href="products.html?category=performance" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=900&auto=format&fit=crop" alt="Athlete performance supplement product">
-            <span>Performance</span>
-          </a>
-          <a href="products.html?category=wellness" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=900&auto=format&fit=crop" alt="Wellness capsules and vitamins">
-            <span>Wellness</span>
-          </a>
-          <a href="products.html?category=diet" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=900&auto=format&fit=crop" alt="Healthy diet food bowl">
-            <span>Diet Plans</span>
-          </a>
-          <a href="products.html?category=foods" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=900&auto=format&fit=crop" alt="Healthy oats and fitness foods">
-            <span>Fitness Foods</span>
-          </a>
-          <a href="products.html?category=plans" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1571019613914-85f342c6a11e?q=80&w=900&auto=format&fit=crop" alt="Fitness workout guidance plan">
-            <span>Guidance Plans</span>
-          </a>
-          <a href="products.html?category=equipment" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=900&auto=format&fit=crop" alt="Yoga mat and fitness equipment">
-            <span>Equipment</span>
-          </a>
-          <a href="products.html?category=wellness" class="category-tile">
-            <img src="https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=900&auto=format&fit=crop" alt="Vitamins and wellness support products">
-            <span>Immunity</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-pad guidance-section">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Fitness Guidance</p>
-          <h2>Plans for every body goal</h2>
-          <p>Choose simple guidance for fat loss, muscle gain, healthy eating, yoga, and daily wellness routines.</p>
-        </div>
-        <div class="guidance-grid guidance-product-grid" id="guidanceGrid"></div>
-      </div>
-    </section>
-
-    <section class="section-pad product-band">
+    <section class="section">
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Featured Products</p>
-          <h2>Best sellers this week</h2>
-          <p>Popular protein supplements, fitness foods, wellness essentials, equipment, and healthy diet products from ProNutra.</p>
+          <h2>Popular ProNutra products</h2>
+          <p>Explore nutrition, healthy food, and wellness products selected for healthy fitness, daily wellness, and fit and healthy body goals.</p>
         </div>
-        <div class="row g-4" id="featuredGrid"></div>
-        <div class="text-center mt-4">
-          <a class="btn btn-success btn-lg" href="products.html">View Full Catalog</a>
-        </div>
+        <div class="row g-4" id="featuredProducts"></div>
       </div>
     </section>
 
-    <section class="section-pad">
+    <section class="section feature-section-bottom">
       <div class="container">
-        <div class="brand-flow">
-          <div>
-            <p class="eyebrow">Why Choose Us</p>
-            <h2>Built for everyday fitness and nutrition</h2>
-            <p>ProNutra helps you stay fit and healthy with carefully selected nutrition products for muscle recovery, balanced diet, energy, and wellness.</p>
-          </div>
-          <div class="flow-steps">
-            <div><span>01</span><strong>High Protein</strong><small>Support muscle growth, recovery, and strength with clean protein formulas.</small></div>
-            <div><span>02</span><strong>Balanced Diet</strong><small>Nutrition diet plans and meal support for healthy fitness routines.</small></div>
-            <div><span>03</span><strong>Wellness</strong><small>Daily vitamins, omega support, and wellness capsules for active adults.</small></div>
-            <div><span>04</span><strong>Fast Delivery</strong><small>Reliable delivery across India with simple and safe online ordering.</small></div>
-          </div>
+        <div class="feature-grid">
+          <div class="feature-box"><i class="fa-solid fa-heart-pulse"></i><h3>Healthy Fitness</h3><p class="mb-0">Nutrition support for a healthy fit body and active routine.</p></div>
+          <div class="feature-box"><i class="fa-solid fa-dumbbell"></i><h3>Protein Nutrition</h3><p class="mb-0">Whey protein, plant protein, and strength support essentials.</p></div>
+          <div class="feature-box"><i class="fa-solid fa-leaf"></i><h3>Wellness Care</h3><p class="mb-0">Daily wellness, immunity, and balanced lifestyle products.</p></div>
+          <div class="feature-box"><i class="fa-solid fa-bowl-food"></i><h3>Healthy Foods</h3><p class="mb-0">Oats, granola, peanut butter, and balanced diet choices.</p></div>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-grid">
+    <div class="container footer-inner">
       <div>
-        <a class="footer-brand" href="index.html"><span>Pro</span>Nutra</a>
-        <p>Premium nutrition, high protein diet products, wellness supplements, and healthy fitness essentials.</p>
+        <strong class="footer-brand"><span>Pro</span>Nutra</strong>
+        <p>Premium whey protein, healthy fitness foods, wellness support, and balanced nutrition diet.</p>
       </div>
-      <div>
-        <h6>Store</h6>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
         <a href="products.html">Products</a>
         <a href="cart.html">Cart</a>
-        <a href="checkout.html">Checkout</a>
+        <a href="orders.html">Orders</a>
       </div>
-      <div>
-        <h6>Support</h6>
-        <a href="about.html">About ProNutra</a>
-        <a href="contact.html">Contact</a>
-        <a href="products.html?category=wellness">Wellness</a>
-        <a href="orders.html">Track Orders</a>
+      <div class="footer-copy">
+        <span>&copy; 2026 ProNutra. All rights reserved.</span>
       </div>
     </div>
-    <div class="footer-bottom">Copyright 2026 ProNutra. All Rights Reserved.</div>
   </footer>
 
-  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content product-modal">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalTitle">Product Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="productModalBody"></div>
-      </div>
-    </div>
-  </div>
-
   <div id="toastArea" class="toast-area"></div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>

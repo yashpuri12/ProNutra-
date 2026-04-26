@@ -3,31 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Protein Supplements, Nutrition Diet & Wellness Products | ProNutra</title>
-  <meta name="description" content="Browse ProNutra whey protein, plant protein, creatine, omega-3, multivitamins, healthy fitness products, and balanced nutrition diet plans.">
-  <meta name="keywords" content="protein supplements, nutrition diet, healthy fitness, high protein diet, whey protein, plant protein, creatine, wellness capsules">
+  <title>Products | ProNutra</title>
+  <meta name="description" content="Browse ProNutra protein supplements, wellness capsules, healthy breakfast foods, and balanced diet plans.">
+  <meta name="keywords" content="healthy fitness, nutrition, healthy fit body, fit and healthy body, stay fit healthy, how to be fit and healthy, how to stay fit and healthy, protein supplements, whey protein, plant protein, wellness support, healthy breakfast foods, nutrition diet, fitness products, balanced diet plan, granola, peanut butter, creatine, omega 3">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="products">
-  <header class="site-header compact">
+  <!-- Product listing and search page -->
+  <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
         <a class="navbar-brand" href="index.html"><span>Pro</span>Nutra</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="menu">
-          <ul class="navbar-nav ms-auto align-items-lg-center">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
-            <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
-            <li class="nav-item dropdown ms-lg-2 auth-user">
-              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-                <i class="fa-solid fa-user"></i>
+            <li class="nav-item"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong data-cart-count>0</strong></a></li>
+            <li class="nav-item dropdown">
+              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                <span class="profile-avatar" data-profile-initial>A</span>
+                <span class="profile-label">Account</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end profile-menu">
-                <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
+                <li><span class="dropdown-item-text" data-profile-name>My Account</span></li>
                 <li><a class="dropdown-item" href="orders.html">Orders</a></li>
                 <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
               </ul>
@@ -36,48 +37,49 @@
         </div>
       </div>
     </nav>
-    <div class="page-title">
+    <div class="page-intro">
       <div class="container">
-        <p class="eyebrow">ProNutra Catalog</p>
-        <h1>Protein, nutrition diet, and wellness products</h1>
-        <p>Shop premium supplements and healthy fitness essentials for strength, recovery, and balanced living.</p>
+        <p class="eyebrow">Product Catalog</p>
+        <h1>Browse all nutrition products</h1>
+        <p>Find whey protein, healthy food, wellness capsules, and balanced diet support in one place for healthy fitness and stay fit healthy routines.</p>
       </div>
     </div>
   </header>
 
-  <main class="section-pad product-band">
+  <main class="section">
     <div class="container">
-      <div class="catalog-toolbar">
-        <div class="input-group">
-          <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-          <input class="form-control" type="search" id="productSearch" placeholder="Search protein, creatine, omega, diet...">
-        </div>
-        <div class="filter-pills" id="categoryFilters">
-          <button class="active" data-filter="all">All</button>
-          <button data-filter="protein">Protein</button>
-          <button data-filter="performance">Performance</button>
-          <button data-filter="wellness">Wellness</button>
-          <button data-filter="foods">Foods</button>
-          <button data-filter="plans">Plans</button>
-          <button data-filter="equipment">Equipment</button>
-          <button data-filter="diet">Diet</button>
+      <div class="catalog-tools">
+        <input class="form-control" id="productSearch" type="search" placeholder="Search whey, omega, oats...">
+        <div class="filter-row">
+          <button class="active" type="button" data-filter="all">All</button>
+          <button type="button" data-filter="protein">Protein</button>
+          <button type="button" data-filter="performance">Performance</button>
+          <button type="button" data-filter="wellness">Wellness</button>
+          <button type="button" data-filter="foods">Foods</button>
+          <button type="button" data-filter="plans">Plans</button>
         </div>
       </div>
       <div class="row g-4" id="productGrid"></div>
     </div>
   </main>
 
-  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content product-modal">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalTitle">Product Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="productModalBody"></div>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong class="footer-brand"><span>Pro</span>Nutra</strong>
+        <p>Premium whey protein, healthy fitness foods, wellness support, and balanced nutrition diet.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+      </div>
+      <div class="footer-copy">
+        <span>&copy; 2026 ProNutra. All rights reserved.</span>
       </div>
     </div>
-  </div>
+  </footer>
 
   <div id="toastArea" class="toast-area"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

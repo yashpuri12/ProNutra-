@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Cart | ProNutra Nutrition Store</title>
-  <meta name="description" content="Review your ProNutra cart with protein supplements, nutrition diet products, and wellness essentials.">
+  <title>Cart | ProNutra</title>
+  <meta name="description" content="Review your selected ProNutra protein, healthy food, and wellness products before checkout.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="cart">
-  <header class="site-header compact">
+  <!-- Shopping cart page -->
+  <header class="site-header">
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
         <a class="navbar-brand" href="index.html"><span>Pro</span>Nutra</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="menu">
-          <ul class="navbar-nav ms-auto align-items-lg-center">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link active" href="cart.html">Cart</a></li>
-            <li class="nav-item ms-lg-3"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong id="cartCount">0</strong></a></li>
-            <li class="nav-item dropdown ms-lg-2 auth-user">
-              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-                <i class="fa-solid fa-user"></i>
+            <li class="nav-item"><a class="btn btn-warning nav-cart" href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><strong data-cart-count>0</strong></a></li>
+            <li class="nav-item dropdown">
+              <button class="btn profile-trigger dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                <span class="profile-avatar" data-profile-initial>A</span>
+                <span class="profile-label">Account</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end profile-menu">
-                <li><span class="dropdown-item-text profile-name" id="profileName">My Account</span></li>
+                <li><span class="dropdown-item-text" data-profile-name>My Account</span></li>
                 <li><a class="dropdown-item" href="orders.html">Orders</a></li>
                 <li><button class="dropdown-item text-danger" type="button" id="logoutBtn">Logout</button></li>
               </ul>
@@ -35,34 +36,51 @@
         </div>
       </div>
     </nav>
-    <div class="page-title">
+    <div class="page-intro">
       <div class="container">
         <p class="eyebrow">Shopping Cart</p>
-        <h1>Your Shopping Cart</h1>
-        <p>Review your nutrition products, update quantities, and continue to secure checkout.</p>
+        <h1>Review your selected products</h1>
+        <p>Update quantity, remove items, and continue to secure checkout.</p>
       </div>
     </div>
   </header>
 
-  <main class="section-pad">
+  <main class="section">
     <div class="container">
       <div class="cart-layout">
         <section class="panel">
-          <h2>Cart Items</h2>
+          <h2 class="mb-3">Cart Items</h2>
           <div id="cartItems"></div>
         </section>
         <aside class="panel summary-panel">
-          <h2>Order Summary</h2>
+          <h2 class="mb-3">Order Summary</h2>
           <div class="summary-line"><span>Subtotal</span><strong id="cartSubtotal">Rs. 0</strong></div>
           <div class="summary-line"><span>GST 18%</span><strong id="cartTax">Rs. 0</strong></div>
           <div class="summary-line"><span>Delivery</span><strong id="cartDelivery">Rs. 0</strong></div>
           <div class="summary-line total"><span>Total</span><strong id="cartTotal">Rs. 0</strong></div>
-          <a class="btn btn-success w-100 mt-3" id="checkoutLink" href="checkout.html"><i class="fa-solid fa-lock me-2"></i>Proceed to Checkout</a>
-          <button class="btn btn-outline-danger w-100 mt-2" id="clearCartBtn" type="button">Clear Cart</button>
+          <a class="btn btn-success w-100 mt-4" href="checkout.html">Proceed to Checkout</a>
         </aside>
       </div>
     </div>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong class="footer-brand"><span>Pro</span>Nutra</strong>
+        <p>Premium whey protein, healthy fitness foods, wellness support, and balanced nutrition diet.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+      </div>
+      <div class="footer-copy">
+        <span>&copy; 2026 ProNutra. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
 
   <div id="toastArea" class="toast-area"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
