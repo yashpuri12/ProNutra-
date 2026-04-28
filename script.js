@@ -142,11 +142,14 @@ const PRODUCTS = [
 const STORAGE = {
   users: "pronutra_users_v1",
   currentUser: "pronutra_current_user_v1",
-  session: "pronutra_session_v1"
+  session: "pronutra_session_v1",
+  token: "pronutra_auth_token_v1"
 };
 
+const API_BASE = "http://localhost:5000/api";
 const PROTECTED_PAGES = new Set(["home", "products", "cart", "checkout", "orders"]);
 const page = document.body.dataset.page || "home";
+let backendAvailable = false;
 
 function readJson(key, fallback) {
   try {
@@ -193,12 +196,55 @@ function clearCurrentUser() {
   sessionStorage.removeItem(STORAGE.session);
 }
 
+function getToken() {
+  return localStorage.getItem(STORAGE.token) || "";
+}
+
+function setToken(token) {
+  localStorage.setItem(STORAGE.token, token);
+}
+
+function clearToken() {
+  localStorage.removeItem(STORAGE.token);
+}
+
 function setSessionActive() {
   sessionStorage.setItem(STORAGE.session, "active");
 }
 
 function hasActiveSession() {
   return sessionStorage.getItem(STORAGE.session) === "active";
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (options.auth !== false && getToken()) {
+    headers.Authorization = `Bearer ${getToken()}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed.");
+  }
+  return data;
+}
+
+async function detectBackend() {
+  try {
+    await apiFetch("/health", { auth: false });
+    backendAvailable = true;
+  } catch {
+    backendAvailable = false;
+  }
 }
 
 // Per-user cart and order storage keeps shopping data user-specific.
@@ -232,9 +278,42 @@ function writeOrders(orders) {
   writeJson(orderKey(user.user_id), orders);
 }
 
+async function syncCartFromApi() {
+  if (!backendAvailable || !getCurrentUser()) return;
+  const response = await apiFetch("/cart");
+  const cart = (response.items || []).reduce((acc, item) => {
+    acc[item.product_id] = item.quantity;
+    return acc;
+  }, {});
+  writeCart(cart);
+}
+
+async function syncOrdersFromApi() {
+  if (!backendAvailable || !getCurrentUser()) return;
+  const response = await apiFetch("/orders");
+  const orders = (response.orders || []).map((order) => ({
+    id: order.id,
+    date: new Date(order.createdAt).toLocaleDateString("en-IN"),
+    payment: order.paymentMethod,
+    status: order.status,
+    total: order.totals.total,
+    items: order.items
+  }));
+  writeOrders(orders);
+}
+
+async function restoreBackendSession() {
+  if (!backendAvailable || !getToken() || !hasActiveSession()) return;
+  const response = await apiFetch("/auth/me");
+  setCurrentUser(response.user);
+  await Promise.all([syncCartFromApi(), syncOrdersFromApi()]);
+}
+
 function requireAuth() {
   const user = getCurrentUser();
-  const authenticated = !!user && hasActiveSession();
+  const authenticated = backendAvailable
+    ? !!getToken() && !!user && hasActiveSession()
+    : !!user && hasActiveSession();
   if (!authenticated && PROTECTED_PAGES.has(page)) {
     window.location.href = "login.html";
     return false;
@@ -457,10 +536,21 @@ function renderOrdersPage() {
 }
 
 // Shopping cart actions for add, increase, decrease, and remove.
-function addToCart(productId) {
+async function addToCart(productId) {
   const cart = readCart();
-  cart[productId] = (cart[productId] || 0) + 1;
-  writeCart(cart);
+  const nextQty = (cart[productId] || 0) + 1;
+
+  if (backendAvailable && getToken()) {
+    await apiFetch(`/cart/${productId}`, {
+      method: "PUT",
+      body: JSON.stringify({ quantity: nextQty })
+    });
+    await syncCartFromApi();
+  } else {
+    cart[productId] = nextQty;
+    writeCart(cart);
+  }
+
   updateCartCount();
   renderFeaturedProducts();
   renderProductCatalog();
@@ -469,14 +559,23 @@ function addToCart(productId) {
   toast("Product added to cart");
 }
 
-function updateQty(productId, nextQty) {
-  const cart = readCart();
-  if (nextQty <= 0) {
-    delete cart[productId];
+async function updateQty(productId, nextQty) {
+  if (backendAvailable && getToken()) {
+    await apiFetch(`/cart/${productId}`, {
+      method: "PUT",
+      body: JSON.stringify({ quantity: Math.max(0, nextQty) })
+    });
+    await syncCartFromApi();
   } else {
-    cart[productId] = nextQty;
+    const cart = readCart();
+    if (nextQty <= 0) {
+      delete cart[productId];
+    } else {
+      cart[productId] = nextQty;
+    }
+    writeCart(cart);
   }
-  writeCart(cart);
+
   updateCartCount();
   renderFeaturedProducts();
   renderProductCatalog();
@@ -529,6 +628,24 @@ function handleSignup(event) {
     return;
   }
 
+  if (backendAvailable) {
+    apiFetch("/auth/signup", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify({ name, email, password })
+    }).then(async (response) => {
+      setToken(response.token);
+      setCurrentUser(response.user);
+      setSessionActive();
+      await Promise.all([syncCartFromApi(), syncOrdersFromApi()]);
+      status.innerHTML = `<div class="alert alert-success">Account created successfully.</div>`;
+      setTimeout(() => { window.location.href = "index.html"; }, 700);
+    }).catch((error) => {
+      status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    });
+    return;
+  }
+
   const users = getUsers();
   if (users.some((user) => user.email === email)) {
     status.innerHTML = `<div class="alert alert-danger">Email already registered.</div>`;
@@ -559,6 +676,24 @@ function handleLogin(event) {
     return;
   }
 
+  if (backendAvailable) {
+    apiFetch("/auth/login", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify({ email, password })
+    }).then(async (response) => {
+      setToken(response.token);
+      setCurrentUser(response.user);
+      setSessionActive();
+      await Promise.all([syncCartFromApi(), syncOrdersFromApi()]);
+      status.innerHTML = `<div class="alert alert-success">Login successful.</div>`;
+      setTimeout(() => { window.location.href = "index.html"; }, 600);
+    }).catch((error) => {
+      status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    });
+    return;
+  }
+
   const user = getUsers().find((item) => item.email === email);
   if (!user) {
     status.innerHTML = `<div class="alert alert-danger">User not found.</div>`;
@@ -576,12 +711,13 @@ function handleLogin(event) {
 }
 
 function handleLogout() {
+  clearToken();
   clearCurrentUser();
   window.location.href = "login.html";
 }
 
 // Checkout saves order history and clears the current user cart.
-function handleCheckout(event) {
+async function handleCheckout(event) {
   event.preventDefault();
   const status = document.querySelector("#orderStatus");
   const items = cartEntries();
@@ -602,27 +738,49 @@ function handleCheckout(event) {
     return;
   }
 
-  const totals = cartTotals();
-  const orders = readOrders();
-  const order = {
-    id: slugId(),
-    date: new Date().toLocaleDateString("en-IN"),
-    payment,
-    status: "Confirmed",
-    total: totals.total,
-    items: items.map(({ product, qty }) => ({
-      name: product.name,
-      qty,
-      price: product.price
-    }))
-  };
+  if (backendAvailable && getToken()) {
+    try {
+      const response = await apiFetch("/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          customer: { name, email, phone, address },
+          paymentMethod: payment,
+          items: items.map(({ product, qty }) => ({ productId: product.id, quantity: qty }))
+        })
+      });
+      writeCart({});
+      await syncCartFromApi();
+      await syncOrdersFromApi();
+      status.innerHTML = `<div class="alert alert-success">Order placed successfully. Order ID: <strong>PN-${response.orderId}</strong>. <a class="alert-link" href="orders.html">View orders</a></div>`;
+    } catch (error) {
+      status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+      return;
+    }
+  } else {
+    const totals = cartTotals();
+    const orders = readOrders();
+    const order = {
+      id: slugId(),
+      date: new Date().toLocaleDateString("en-IN"),
+      payment,
+      status: "Confirmed",
+      total: totals.total,
+      items: items.map(({ product, qty }) => ({
+        name: product.name,
+        qty,
+        price: product.price
+      }))
+    };
 
-  orders.unshift(order);
-  writeOrders(orders);
-  writeCart({});
-  status.innerHTML = `<div class="alert alert-success">Order placed successfully. Order ID: <strong>${order.id}</strong>. <a class="alert-link" href="orders.html">View orders</a></div>`;
+    orders.unshift(order);
+    writeOrders(orders);
+    writeCart({});
+    status.innerHTML = `<div class="alert alert-success">Order placed successfully. Order ID: <strong>${order.id}</strong>. <a class="alert-link" href="orders.html">View orders</a></div>`;
+  }
+
   event.currentTarget.reset();
   renderCheckoutPage();
+  renderOrdersPage();
   updateCartCount();
 }
 
@@ -663,7 +821,17 @@ function bindEvents() {
   document.querySelector("#logoutBtn")?.addEventListener("click", handleLogout);
 }
 
-function initPage() {
+async function initPage() {
+  await detectBackend();
+  if (backendAvailable) {
+    try {
+      await restoreBackendSession();
+    } catch {
+      clearToken();
+      clearCurrentUser();
+    }
+  }
+
   if (!requireAuth()) return;
   renderNavbarUser();
   updateCartCount();
