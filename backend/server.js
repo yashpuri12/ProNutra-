@@ -22,7 +22,16 @@ const pool = mysql.createPool({
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
 function signToken(user) {
-  return jwt.sign({ userId: user.id, email: user.email, name: user.full_name }, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ userId: user.id, email: user.email, name: user.full_name, phone: user.phone_number || "" }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+function normalizePhone(value = "") {
+  const digits = String(value).replace(/\D/g, "");
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
+function isValidPhone(value = "") {
+  return /^\d{10}$/.test(normalizePhone(value));
 }
 
 async function getUserCart(connection, userId) {
@@ -41,11 +50,11 @@ async function authMiddleware(req, res, next) {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    const [rows] = await pool.query("SELECT id, full_name, email FROM users WHERE id = ?", [payload.userId]);
+    const [rows] = await pool.query("SELECT id, full_name, email, phone_number FROM users WHERE id = ?", [payload.userId]);
     if (!rows.length) {
       return res.status(401).json({ error: "User not found." });
     }
-    req.user = { id: rows[0].id, name: rows[0].full_name, email: rows[0].email };
+    req.user = { id: rows[0].id, name: rows[0].full_name, email: rows[0].email, phone: rows[0].phone_number };
     next();
   } catch (error) {
     return res.status(401).json({ error: "Invalid or expired session." });
@@ -57,9 +66,10 @@ app.get("/api/health", (req, res) => {
 });
 
 app.post("/api/auth/signup", async (req, res) => {
-  const { name, email, password } = req.body || {};
+  const { name, email, phone, password } = req.body || {};
   const trimmedEmail = String(email || "").trim().toLowerCase();
   const trimmedName = String(name || "").trim();
+  const normalizedPhone = normalizePhone(phone);
 
   if (!trimmedName || trimmedName.length < 3) {
     return res.status(400).json({ error: "Name must be at least 3 characters." });
@@ -73,31 +83,41 @@ app.post("/api/auth/signup", async (req, res) => {
   if (!password || String(password).length < 6) {
     return res.status(400).json({ error: "Password must be at least 6 characters." });
   }
+  if (!isValidPhone(normalizedPhone)) {
+    return res.status(400).json({ error: "Enter a valid 10-digit mobile number." });
+  }
 
-  const [existing] = await pool.query("SELECT id FROM users WHERE email = ?", [trimmedEmail]);
+  const [existing] = await pool.query("SELECT id FROM users WHERE email = ? OR phone_number = ?", [trimmedEmail, normalizedPhone]);
   if (existing.length) {
-    return res.status(409).json({ error: "Email already registered." });
+    return res.status(409).json({ error: "Email or mobile number already registered." });
   }
 
   const passwordHash = await bcrypt.hash(String(password), 10);
   const [result] = await pool.query(
-    "INSERT INTO users (full_name, email, password_hash) VALUES (?, ?, ?)",
-    [trimmedName, trimmedEmail, passwordHash]
+    "INSERT INTO users (full_name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)",
+    [trimmedName, trimmedEmail, normalizedPhone, passwordHash]
   );
   await pool.query("INSERT INTO carts (user_id) VALUES (?)", [result.insertId]);
-  const token = signToken({ id: result.insertId, email: trimmedEmail, full_name: trimmedName });
-  res.status(201).json({ token, user: { user_id: result.insertId, name: trimmedName, email: trimmedEmail } });
+  const token = signToken({ id: result.insertId, email: trimmedEmail, full_name: trimmedName, phone_number: normalizedPhone });
+  res.status(201).json({ token, user: { user_id: result.insertId, name: trimmedName, email: trimmedEmail, phone: normalizedPhone } });
 });
 
 app.post("/api/auth/login", async (req, res) => {
-  const { email, password } = req.body || {};
-  const trimmedEmail = String(email || "").trim().toLowerCase();
+  const { credential, password } = req.body || {};
+  const rawCredential = String(credential || "").trim();
+  const trimmedEmail = rawCredential.toLowerCase();
+  const normalizedPhone = normalizePhone(rawCredential);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(trimmedEmail)) {
-    return res.status(400).json({ error: "Invalid email." });
+  const isEmail = emailRegex.test(trimmedEmail);
+  const isPhone = isValidPhone(normalizedPhone);
+  if (!isEmail && !isPhone) {
+    return res.status(400).json({ error: "Enter a valid email or mobile number." });
   }
 
-  const [rows] = await pool.query("SELECT id, full_name, email, password_hash FROM users WHERE email = ?", [trimmedEmail]);
+  const [rows] = await pool.query(
+    "SELECT id, full_name, email, phone_number, password_hash FROM users WHERE email = ? OR phone_number = ?",
+    [isEmail ? trimmedEmail : "", isPhone ? normalizedPhone : ""]
+  );
   if (!rows.length) {
     return res.status(404).json({ error: "User not found." });
   }
@@ -109,11 +129,39 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   const token = signToken(user);
-  res.json({ token, user: { user_id: user.id, name: user.full_name, email: user.email } });
+  res.json({ token, user: { user_id: user.id, name: user.full_name, email: user.email, phone: user.phone_number } });
 });
 
 app.get("/api/auth/me", authMiddleware, async (req, res) => {
-  res.json({ user: { user_id: req.user.id, name: req.user.name, email: req.user.email } });
+  res.json({ user: { user_id: req.user.id, name: req.user.name, email: req.user.email, phone: req.user.phone } });
+});
+
+app.post("/api/auth/google-demo", async (req, res) => {
+  const name = String(req.body?.name || "ProNutra Google User").trim();
+  const email = String(req.body?.email || "google.user@pronutra.com").trim().toLowerCase();
+  const phone = normalizePhone(req.body?.phone || "9999999999");
+  const password = String(req.body?.password || "google-auth");
+
+  let user;
+  const [existing] = await pool.query(
+    "SELECT id, full_name, email, phone_number FROM users WHERE email = ? OR phone_number = ? LIMIT 1",
+    [email, phone]
+  );
+
+  if (existing.length) {
+    user = existing[0];
+  } else {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const [created] = await pool.query(
+      "INSERT INTO users (full_name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)",
+      [name, email, phone, passwordHash]
+    );
+    await pool.query("INSERT INTO carts (user_id) VALUES (?)", [created.insertId]);
+    user = { id: created.insertId, full_name: name, email, phone_number: phone };
+  }
+
+  const token = signToken(user);
+  res.json({ token, user: { user_id: user.id, name: user.full_name, email: user.email, phone: user.phone_number } });
 });
 
 app.get("/api/products", async (req, res) => {

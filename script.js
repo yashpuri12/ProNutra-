@@ -175,6 +175,29 @@ function normalizeEmail(value = "") {
   return String(value).trim().toLowerCase();
 }
 
+function normalizePhone(value = "") {
+  const digits = String(value).replace(/\D/g, "");
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
+function isValidPhone(value = "") {
+  return /^\d{10}$/.test(normalizePhone(value));
+}
+
+function parseCredential(value = "") {
+  const raw = String(value).trim();
+  const email = normalizeEmail(raw);
+  const phone = normalizePhone(raw);
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const phoneOk = /^\d{10}$/.test(phone);
+  return {
+    raw,
+    email: emailOk ? email : "",
+    phone: phoneOk ? phone : "",
+    valid: emailOk || phoneOk
+  };
+}
+
 function getUsers() {
   return readJson(STORAGE.users, []);
 }
@@ -607,6 +630,7 @@ function handleSignup(event) {
   const status = document.querySelector("#signupStatus");
   const name = document.querySelector("#signupName")?.value.trim() || "";
   const email = normalizeEmail(document.querySelector("#signupEmail")?.value);
+  const phone = normalizePhone(document.querySelector("#signupPhone")?.value);
   const password = document.querySelector("#signupPassword")?.value || "";
   const confirm = document.querySelector("#signupConfirmPassword")?.value || "";
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -617,6 +641,10 @@ function handleSignup(event) {
   }
   if (!emailOk) {
     status.innerHTML = `<div class="alert alert-danger">Invalid email.</div>`;
+    return;
+  }
+  if (!isValidPhone(phone)) {
+    status.innerHTML = `<div class="alert alert-danger">Enter a valid 10-digit mobile number.</div>`;
     return;
   }
   if (password.length < 6) {
@@ -632,7 +660,7 @@ function handleSignup(event) {
     apiFetch("/auth/signup", {
       method: "POST",
       auth: false,
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, phone, password })
     }).then(async (response) => {
       setToken(response.token);
       setCurrentUser(response.user);
@@ -651,11 +679,15 @@ function handleSignup(event) {
     status.innerHTML = `<div class="alert alert-danger">Email already registered.</div>`;
     return;
   }
+  if (users.some((user) => normalizePhone(user.phone) === phone)) {
+    status.innerHTML = `<div class="alert alert-danger">Mobile number already registered.</div>`;
+    return;
+  }
 
-  const user = { user_id: slugId(), name, email, password };
+  const user = { user_id: slugId(), name, email, phone, password };
   users.push(user);
   saveUsers(users);
-  setCurrentUser({ user_id: user.user_id, name: user.name, email: user.email });
+  setCurrentUser({ user_id: user.user_id, name: user.name, email: user.email, phone: user.phone });
   setSessionActive();
   writeCart({});
   writeOrders([]);
@@ -667,12 +699,11 @@ function handleSignup(event) {
 function handleLogin(event) {
   event.preventDefault();
   const status = document.querySelector("#loginStatus");
-  const email = normalizeEmail(document.querySelector("#loginEmail")?.value);
+  const credential = parseCredential(document.querySelector("#loginCredential")?.value);
   const password = document.querySelector("#loginPassword")?.value || "";
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if (!emailOk) {
-    status.innerHTML = `<div class="alert alert-danger">Invalid email.</div>`;
+  if (!credential.valid) {
+    status.innerHTML = `<div class="alert alert-danger">Enter a valid email or 10-digit mobile number.</div>`;
     return;
   }
 
@@ -680,7 +711,7 @@ function handleLogin(event) {
     apiFetch("/auth/login", {
       method: "POST",
       auth: false,
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ credential: credential.email || credential.phone, password })
     }).then(async (response) => {
       setToken(response.token);
       setCurrentUser(response.user);
@@ -694,7 +725,7 @@ function handleLogin(event) {
     return;
   }
 
-  const user = getUsers().find((item) => item.email === email);
+  const user = getUsers().find((item) => item.email === credential.email || normalizePhone(item.phone) === credential.phone);
   if (!user) {
     status.innerHTML = `<div class="alert alert-danger">User not found.</div>`;
     return;
@@ -704,10 +735,81 @@ function handleLogin(event) {
     return;
   }
 
-  setCurrentUser({ user_id: user.user_id, name: user.name, email: user.email });
+  setCurrentUser({ user_id: user.user_id, name: user.name, email: user.email, phone: user.phone || "" });
   setSessionActive();
   status.innerHTML = `<div class="alert alert-success">Login successful.</div>`;
   setTimeout(() => { window.location.href = "index.html"; }, 600);
+}
+
+function handleGoogleSignIn() {
+  const status = document.querySelector("#loginStatus");
+  const demoUser = {
+    name: "ProNutra Google User",
+    email: "google.user@pronutra.com",
+    phone: "9999999999",
+    password: "google-auth"
+  };
+
+  if (backendAvailable) {
+    apiFetch("/auth/google-demo", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify(demoUser)
+    }).then(async (response) => {
+      setToken(response.token);
+      setCurrentUser(response.user);
+      setSessionActive();
+      await Promise.all([syncCartFromApi(), syncOrdersFromApi()]);
+      status.innerHTML = `<div class="alert alert-success">Google sign-in completed successfully.</div>`;
+      setTimeout(() => { window.location.href = "index.html"; }, 600);
+    }).catch((error) => {
+      status.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    });
+    return;
+  }
+
+  const users = getUsers();
+  let user = users.find((item) => item.email === demoUser.email);
+  if (!user) {
+    user = { user_id: slugId(), ...demoUser };
+    users.push(user);
+    saveUsers(users);
+  }
+  setCurrentUser({ user_id: user.user_id, name: user.name, email: user.email, phone: user.phone });
+  setSessionActive();
+  status.innerHTML = `<div class="alert alert-success">Google sign-in completed successfully.</div>`;
+  setTimeout(() => { window.location.href = "index.html"; }, 600);
+}
+
+function handleAppleSignIn() {
+  const status = document.querySelector("#loginStatus");
+  status.innerHTML = `<div class="alert alert-success">Apple sign-in design is ready. For this project, Google/demo sign-in and email or mobile login are active.</div>`;
+}
+
+function togglePasswordVisibility() {
+  const field = document.querySelector("#loginPassword");
+  const icon = document.querySelector("#loginPasswordToggle i");
+  if (!field || !icon) return;
+  const showing = field.type === "text";
+  field.type = showing ? "password" : "text";
+  icon.className = showing ? "fa-regular fa-eye" : "fa-regular fa-eye-slash";
+}
+
+function handleForgotPassword() {
+  const status = document.querySelector("#loginStatus");
+  status.innerHTML = `<div class="alert alert-info">For this mini project, sign in with your registered email or mobile number and existing password. Password reset screen can be added later.</div>`;
+}
+
+function switchAuthPanel(targetTab) {
+  const signinPanel = document.querySelector("#signinPanel");
+  const signupPanel = document.querySelector("#signupPanel");
+  if (!signinPanel || !signupPanel) return;
+
+  document.querySelectorAll("[data-auth-tab]").forEach((node) => {
+    node.classList.toggle("active", node.dataset.authTab === targetTab);
+  });
+  signinPanel.classList.toggle("hidden-panel", targetTab !== "signin");
+  signupPanel.classList.toggle("hidden-panel", targetTab !== "signup");
 }
 
 function handleLogout() {
@@ -791,12 +893,12 @@ function initAuthTabs() {
 
   document.querySelectorAll("[data-auth-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      const tab = button.dataset.authTab;
-      document.querySelectorAll("[data-auth-tab]").forEach((node) => node.classList.remove("active"));
-      button.classList.add("active");
-      signinPanel.classList.toggle("hidden-panel", tab !== "signin");
-      signupPanel.classList.toggle("hidden-panel", tab !== "signup");
+      switchAuthPanel(button.dataset.authTab);
     });
+  });
+
+  document.querySelectorAll("[data-switch-auth]").forEach((button) => {
+    button.addEventListener("click", () => switchAuthPanel(button.dataset.switchAuth));
   });
 }
 
@@ -819,6 +921,10 @@ function bindEvents() {
   document.querySelector("#signupForm")?.addEventListener("submit", handleSignup);
   document.querySelector("#checkoutForm")?.addEventListener("submit", handleCheckout);
   document.querySelector("#logoutBtn")?.addEventListener("click", handleLogout);
+  document.querySelector("#googleSigninBtn")?.addEventListener("click", handleGoogleSignIn);
+  document.querySelector("#appleSigninBtn")?.addEventListener("click", handleAppleSignIn);
+  document.querySelector("#loginPasswordToggle")?.addEventListener("click", togglePasswordVisibility);
+  document.querySelector("#forgotPasswordBtn")?.addEventListener("click", handleForgotPassword);
 }
 
 async function initPage() {

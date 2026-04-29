@@ -15,100 +15,131 @@
   <header class="site-header">
     <nav class="navbar navbar-dark">
       <div class="container">
-        <a class="navbar-brand" href="login.html"><span>Pro</span>Nutra</a>
+        <a class="navbar-brand brand-lockup" href="login.html" aria-label="ProNutra Login">
+          <span class="brand-mark"><i class="fa-solid fa-leaf"></i></span>
+          <span class="brand-word"><span>Pro</span>Nutra</span>
+        </a>
       </div>
     </nav>
   </header>
 
-  <main class="login-shell">
+  <main class="login-shell login-shell-premium">
     <div class="container">
-      <div class="login-layout">
-        <section class="login-panel">
-          <a class="login-brand" href="login.html"><span>Pro</span>Nutra</a>
-          <div class="login-chips">
-            <span>Healthy fitness</span>
-            <span>Protein nutrition</span>
-            <span>Daily wellness</span>
-          </div>
-          <div class="auth-tabs">
-            <button class="active" type="button" data-auth-tab="signin">Sign In</button>
-            <button type="button" data-auth-tab="signup">Create Account</button>
-          </div>
-
-          <div id="signinPanel">
-            <h1>Welcome back to your stronger, healthier routine.</h1>
-            <p>Sign in to discover high-protein nutrition, healthy fitness foods, wellness essentials, and your next step toward better results.</p>
-            <div class="login-quick-points">
-              <div><strong>Ready when you are</strong><small>Pick up your routine fast with saved choices and faster shopping.</small></div>
-              <div><strong>Smarter wellness picks</strong><small>Protein, healthy foods, and daily support in one trusted place.</small></div>
+      <div class="login-showcase">
+        <section class="login-story">
+          <a class="login-brand premium-brand" href="login.html" aria-label="ProNutra">
+            <span class="brand-mark"><i class="fa-solid fa-leaf"></i></span>
+            <span class="brand-word"><span>Pro</span>Nutra</span>
+          </a>
+          <h1>Stronger Every Day.<br><span>Healthier For Life.</span></h1>
+          <p>Clean nutrition, effective workouts, and daily wellness habits - everything you need to build a fitter, healthier routine with ProNutra.</p>
+          <div class="story-points">
+            <div class="story-point">
+              <span class="story-icon"><i class="fa-solid fa-leaf"></i></span>
+              <div><strong>Clean Nutrition</strong><small>High-quality protein, wholesome foods, and support that fuels your body the right way.</small></div>
             </div>
-            <form id="loginForm">
-              <div class="mb-3">
-                <label class="form-label" for="loginEmail">Email</label>
-                <input class="form-control form-control-lg" id="loginEmail" type="email" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="loginPassword">Password</label>
-                <input class="form-control form-control-lg" id="loginPassword" type="password" required>
-              </div>
-              <button class="btn btn-success btn-lg w-100" type="submit">Sign In</button>
-              <div id="loginStatus" class="mt-3"></div>
-            </form>
-            <div class="login-note">Keep building your routine with the same email and password you created.</div>
-          </div>
-
-          <div id="signupPanel" class="hidden-panel">
-            <h1>Create your ProNutra account.</h1>
-            <p>Create your account to unlock faster checkout, save your favorite products, and stay consistent with your nutrition and wellness goals.</p>
-            <div class="login-quick-points">
-              <div><strong>Save your winning picks</strong><small>Come back anytime to continue shopping without starting again.</small></div>
-              <div><strong>Track every order</strong><small>See your order details, payment updates, and recent purchases in one place.</small></div>
+            <div class="story-point">
+              <span class="story-icon"><i class="fa-solid fa-dumbbell"></i></span>
+              <div><strong>Effective Workouts</strong><small>Simple strength support, guided plans, and performance products for active goals.</small></div>
             </div>
-            <form id="signupForm">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label" for="signupName">Full Name</label>
-                  <input class="form-control form-control-lg" id="signupName" required>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="signupEmail">Email</label>
-                  <input class="form-control form-control-lg" id="signupEmail" type="email" required>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="signupPassword">Password</label>
-                  <input class="form-control form-control-lg" id="signupPassword" type="password" required>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
-                  <input class="form-control form-control-lg" id="signupConfirmPassword" type="password" required>
-                </div>
-              </div>
-              <button class="btn btn-warning btn-lg w-100 mt-4" type="submit">Create Account</button>
-              <div id="signupStatus" class="mt-3"></div>
-            </form>
-            <div class="login-note">Create your account once and stay one step closer to your healthy fitness goals.</div>
+            <div class="story-point">
+              <span class="story-icon"><i class="fa-regular fa-heart"></i></span>
+              <div><strong>Daily Wellness</strong><small>Trusted wellness choices that support energy, recovery, and confidence every day.</small></div>
+            </div>
+          </div>
+          <div class="story-badges">
+            <span>Protein Support</span>
+            <span>Healthy Foods</span>
+            <span>Daily Wellness</span>
           </div>
         </section>
 
-        <aside class="login-side">
-          <img class="login-side-image" src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1200&auto=format&fit=crop" alt="Healthy fitness lifestyle and workout">
-          <p class="eyebrow">Built For Better Results</p>
-          <h2>Fuel your body, stay consistent, and feel proud of your progress.</h2>
-          <p>ProNutra helps you choose clean protein, healthy foods, and wellness essentials that support strength, recovery, energy, and long-term confidence.</p>
-          <div class="login-highlight">
-            <strong>Made for people who want real progress</strong>
-            <span>Choose smarter nutrition, recover better, and build a routine that feels easier to maintain every day.</span>
+        <section class="login-auth-wrap">
+          <div class="login-auth-card">
+            <div class="auth-tabs auth-tabs-premium">
+              <button class="active" type="button" data-auth-tab="signin">Sign In</button>
+              <button type="button" data-auth-tab="signup">Create Account</button>
+            </div>
+
+            <div id="signinPanel">
+              <div class="auth-card-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue your fitness and nutrition journey.</p>
+              </div>
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label class="form-label" for="loginCredential">Email or Mobile Number</label>
+                  <div class="input-icon-field">
+                    <span><i class="fa-regular fa-envelope"></i></span>
+                    <input class="form-control form-control-lg" id="loginCredential" type="text" inputmode="email" placeholder="Enter your email or mobile number" required>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label" for="loginPassword">Password</label>
+                  <div class="input-icon-field">
+                    <span><i class="fa-solid fa-lock"></i></span>
+                    <input class="form-control form-control-lg" id="loginPassword" type="password" placeholder="Enter your password" required>
+                    <button class="password-toggle" id="loginPasswordToggle" type="button" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                  </div>
+                </div>
+                <div class="auth-inline-link">
+                  <button class="link-button" id="forgotPasswordBtn" type="button">Forgot password?</button>
+                </div>
+                <button class="btn btn-success btn-lg w-100 auth-main-btn" type="submit">Sign In</button>
+                <div class="auth-divider"><span>or continue with</span></div>
+                <div class="auth-social-grid">
+                  <button class="btn social-auth-btn" id="googleSigninBtn" type="button"><i class="fa-brands fa-google"></i> Google</button>
+                  <button class="btn social-auth-btn" id="appleSigninBtn" type="button"><i class="fa-brands fa-apple"></i> Apple</button>
+                </div>
+                <div id="loginStatus" class="mt-3"></div>
+              </form>
+            </div>
+
+            <div id="signupPanel" class="hidden-panel">
+              <div class="auth-card-header">
+                <h2>Create Account</h2>
+                <p>Join ProNutra to save your cart, place orders faster, and stay consistent with your goals.</p>
+              </div>
+              <form id="signupForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label" for="signupName">Full Name</label>
+                    <input class="form-control form-control-lg" id="signupName" placeholder="Enter your full name" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="signupEmail">Email</label>
+                    <input class="form-control form-control-lg" id="signupEmail" type="email" placeholder="Enter your email" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="signupPhone">Mobile Number</label>
+                    <input class="form-control form-control-lg" id="signupPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter mobile number" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="signupPassword">Password</label>
+                    <input class="form-control form-control-lg" id="signupPassword" type="password" placeholder="Create a password" required>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
+                    <input class="form-control form-control-lg" id="signupConfirmPassword" type="password" placeholder="Confirm your password" required>
+                  </div>
+                </div>
+                <button class="btn btn-warning btn-lg w-100 mt-4 auth-main-btn" type="submit">Create Account</button>
+                <p class="auth-switch-line">Already have an account? <button class="link-button auth-switch-btn" data-switch-auth="signin" type="button">Sign In</button></p>
+                <div id="signupStatus" class="mt-3"></div>
+              </form>
+            </div>
           </div>
-          <div class="mini-points">
-            <div><strong>Recover Like You Mean It</strong><br><small>Clean protein and performance support to help you stay ready for the next workout.</small></div>
-            <div><strong>Eat Better Without Overthinking</strong><br><small>Healthy foods and balanced nutrition that fit naturally into your daily routine.</small></div>
-            <div><strong>Feel Good Every Day</strong><br><small>Wellness essentials that support energy, confidence, and healthy consistency.</small></div>
+
+          <div class="login-auth-footer">
+            <div><i class="fa-regular fa-shield-heart"></i><span><strong>Secure &amp; Private</strong><small>Your data is safe with us.</small></span></div>
+            <div><i class="fa-solid fa-circle-check"></i><span><strong>Expert Backed</strong><small>Trusted by fitness-focused shoppers.</small></span></div>
+            <div><i class="fa-solid fa-users"></i><span><strong>Community Driven</strong><small>Built for people growing stronger every day.</small></span></div>
           </div>
-        </aside>
+        </section>
       </div>
     </div>
   </main>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>
